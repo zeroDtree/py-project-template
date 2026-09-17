@@ -88,3 +88,4 @@ dmypy.json
 
 # Secrets
 /shell_script/passwd.sh
+/shell_script/env_email.sh

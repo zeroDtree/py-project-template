@@ -50,6 +50,8 @@ Prefer `from __future__ import annotations`, `X | None` types, and frozen datacl
 - Split help into `@help-begin` (summary / Usage / Env) and `@help-options-begin` (every flag, including `-h/--help`).
 - Help text is English.
 - Slurm: submit from the repo root; `PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`. Sync dependencies on the login node.
+- GPU jobs: `shell_script/mc-run-python.sh`. File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
+- Do not commit SMTP secrets; keep them in gitignored `shell_script/env_email.sh`.
 
 ## Hydra, artifacts, and training
 

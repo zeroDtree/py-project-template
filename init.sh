@@ -180,6 +180,7 @@ bash "$APPLY_SH" -d "$DEST" -f
 
 chmod +x "$DEST/shell_script/"*.sh 2>/dev/null || true
 chmod +x "$DEST/shell_script/hpc/"*.sh 2>/dev/null || true
+chmod +x "$DEST/shell_script/file_sync/"*.sh 2>/dev/null || true
 
 if [[ "$NO_GIT" -eq 0 ]]; then
 	git -C "$DEST" init -b main >/dev/null

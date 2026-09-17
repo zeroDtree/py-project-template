@@ -1,0 +1,4 @@
+# Relative paths from repo root (files or dirs). One per line.
+# artifacts/checkpoints/
+# artifacts/outputs/exp1/
+# artifacts/metrics/summary.json

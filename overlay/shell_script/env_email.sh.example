@@ -1,0 +1,9 @@
+# Fill in SMTP settings, then copy to env_email.sh (gitignored).
+#   cp shell_script/env_email.sh.example shell_script/env_email.sh
+
+export FROM_EMAIL=""
+export FROM_EMAIL_HOST=""
+export FROM_EMAIL_PORT="994"
+export FROM_SMTP_PASSWORD=""
+export TO_EMAIL=""
+export EMAIL_FROM_NAME=""

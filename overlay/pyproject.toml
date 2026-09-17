@@ -15,7 +15,7 @@ __PROJECT_NAME__ = "__PACKAGE_NAME__.cli:main"
 
 [dependency-groups]
 lint = ["pytest", "ruff", "ty"]
-utils = ["tqdm"]
+utils = ["tqdm", "accelerate"]
 dev = [{ include-group = "lint" }, { include-group = "utils" }]
 
 [tool.uv]
