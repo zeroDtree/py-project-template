@@ -1,0 +1,5 @@
+defaults:
+  - train/default
+  - log/default
+  - hydra/default@_here_
+  - _self_

@@ -1,0 +1,6 @@
+hydra:
+  run:
+    dir: artifacts/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: artifacts/hydra-multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

@@ -1,0 +1,3 @@
+[submodule "ai-lorebook"]
+	path = ai-lorebook
+	url = git@github.com:zeroDtree/ai-lorebook.git

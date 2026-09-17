@@ -1,0 +1,13 @@
+[rules]
+unresolved-import = "ignore"
+
+[src]
+include = [
+    "src/__PACKAGE_NAME__/**/*.py",
+    "tests/**/*.py",
+]
+exclude = [
+    "artifacts/**",
+    "legacy/**",
+    "pkgs/**",
+]

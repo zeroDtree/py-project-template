@@ -1,0 +1,33 @@
+[project]
+name = "__PROJECT_NAME__"
+version = "0.1.0"
+classifiers = ["Private :: Do Not Upload"]
+description = "__PROJECT_NAME__"
+readme = "README.md"
+requires-python = ">=__PYTHON_VERSION__,<__PYTHON_NEXT__"
+dependencies = [
+    "hydra-core",
+    "omegaconf",
+]
+
+[project.scripts]
+__PROJECT_NAME__ = "__PACKAGE_NAME__.cli:main"
+
+[dependency-groups]
+lint = ["pytest", "ruff", "ty"]
+utils = ["tqdm"]
+dev = [{ include-group = "lint" }, { include-group = "utils" }]
+
+[tool.uv]
+package = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/__PACKAGE_NAME__"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

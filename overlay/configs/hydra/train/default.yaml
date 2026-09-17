@@ -1,0 +1,11 @@
+seed: 31
+n_epochs: 1
+n_steps: 1000
+batch_size: 1
+device: cuda
+save_dir: artifacts/checkpoints
+save_strategy: steps
+save_steps: 1000
+eval_strategy: steps
+eval_steps: 500
+mixed_precision: "no"

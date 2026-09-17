@@ -1,0 +1,4 @@
+log_dir: artifacts/logs
+log_steps: 100
+log_epochs: 1
+log_strategy: steps
