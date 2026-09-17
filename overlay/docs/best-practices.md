@@ -12,14 +12,14 @@ Conventions this project follows. Keep generated code in English even when notes
 | Path | Role |
 | --- | --- |
 | `src/__PACKAGE_NAME__` | Importable package (Hatch `src` layout) |
-| `configs/` | Hydra and Accelerate configuration |
+| `configs/` | Hydra (`configs/hydra`) and Accelerate configuration |
 | `tests/` | pytest, mirrored to the package layout |
 | `artifacts/` | Runtime outputs: Hydra runs, checkpoints, logs |
 | `docs/` | Design notes and math write-ups |
-| `legacy/` | Historical code; excluded from Ruff and ty |
-| `pkgs/` | Third-party or workspace packages; treat as reference unless asked to edit |
+| `legacy/` | Optional later dir for historical code; excluded from Ruff and ty |
+| `pkgs/` | Optional later dir for third-party or workspace packages; treat as reference unless asked to edit |
 
-Locate the repo with `.project-root` and `paths.py`. Do not depend on the process CWD.
+Locate the repo with the `.project-root` marker and `paths.py` (`PROJECT_ROOT`, `HYDRA_CONFIG_ROOT`, `ARTIFACT_ROOT`). Do not depend on the process CWD.
 
 ## Python environment
 
@@ -30,7 +30,7 @@ Locate the repo with `.project-root` and `paths.py`. Do not depend on the proces
 
 ## Quality gates
 
-Ruff (Black-compatible, line length 120) and ty. Scope is `src/__PACKAGE_NAME__` and `tests`. Exclude `legacy/`, `pkgs/`, and `artifacts/`. Underscore-prefixed names may be unused.
+Ruff (Black-compatible, line length 120) and ty. Scope is `src/__PACKAGE_NAME__` and `tests`. Exclude `legacy/`, `pkgs/`, and `artifacts/` if those directories exist. Underscore-prefixed names may be unused.
 
 Before finishing Python work:
 
@@ -45,23 +45,18 @@ Prefer `from __future__ import annotations`, `X | None` types, and frozen datacl
 
 ## Shell scripts
 
-- Run from the project root.
+See [shell_script/README.md](../shell_script/README.md). Invoke as `bash shell_script/...` from the project root.
+
 - Use `set -euo pipefail`.
 - Split help into `@help-begin` (summary / Usage / Env) and `@help-options-begin` (every flag, including `-h/--help`).
 - Help text is English.
-- Slurm: submit from the repo root; `PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`. Sync dependencies on the login node.
-- GPU jobs: `shell_script/mc-run-python.sh`. File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
+- CPU: `shell_script/run-python.sh`. GPU / Accelerate: `shell_script/mc-run-python.sh`. File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
+- When adding Slurm batch scripts, submit from the repo root and source `shell_script/hpc/env.sh` (`PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`). Sync dependencies on the login node.
 - Do not commit SMTP secrets; keep them in gitignored `shell_script/env_email.sh`.
 
 ## Hydra, artifacts, and training
 
 - Compose configs under `configs/hydra`.
-- Point `@hydra.main` at `HYDRA_CONFIG_ROOT` / `default.yaml`.
-- Hydra `run.dir` and `sweep.dir`, checkpoints, and logs live under `artifacts/`.
+- Use `@hydra.main(version_base="1.3", config_path=str(HYDRA_CONFIG_ROOT), config_name="default.yaml")`.
+- Hydra `run.dir` and `sweep.dir` (see `configs/hydra/hydra/default.yaml`), checkpoints, and logs live under `artifacts/`.
 - Do not commit `artifacts/`, datasets, `.env`, or secret scripts.
-
-## Math and Typst
-
-- Bold lowercase vectors, bold uppercase matrices; vectors are columns.
-- `$A := B$` means “defined as”.
-- Typst: space between a subscript and `(...)`; do not nest `` `code` `` and `$math$`; whole-word bold is `*word*`, partial bold is `#strong[...]`.
