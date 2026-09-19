@@ -1,0 +1,5 @@
+reinit: true
+mode: offline
+project: __PROJECT_NAME__
+group: default
+entity: null

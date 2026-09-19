@@ -1,0 +1,9 @@
+defaults:
+  - train/default
+  - log/default
+  - optimizer/default
+  - model/default
+  - dataset/default
+  - wandb/default
+  - hydra/default@_here_
+  - _self_

@@ -1,3 +1,6 @@
 [submodule "ai-lorebook"]
 	path = ai-lorebook
 	url = git@github.com:zeroDtree/ai-lorebook.git
+[submodule "my_pkg_py"]
+	path = my_pkg_py
+	url = git@github.com:zeroDtree/my_pkg_py.git

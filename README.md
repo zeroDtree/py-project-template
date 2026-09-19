@@ -17,6 +17,12 @@ Initialize a new project:
 ./init.sh --dest /path/to/my-exp --name my-exp
 ```
 
+To include the `mlkit` training pipeline, pass `--mlkit` (needs GitHub access). That clones `my_pkg_py` into the new project's `pkgs/my_pkg_py` on the default remote branch.
+
+```bash
+./init.sh --dest /path/to/my-exp --name my-exp --mlkit
+```
+
 ## Template Structure
 
 This repository:
@@ -25,6 +31,8 @@ This repository:
 .
 ├── init.sh            # scaffold a new project (destination must be empty)
 ├── overlay/           # copied into the destination; placeholders are then replaced
+├── overlay_mlkit/     # merged when --mlkit
+├── my_pkg_py/         # submodule; mlkit source used by --mlkit
 └── ai-lorebook/       # submodule; apply.sh copies Cursor / Copilot / Claude rules
 ```
 
@@ -55,4 +63,4 @@ my-exp/
 └── README.md
 ```
 
-`--package` defaults to the project name with `-` replaced by `_` (`my-exp` → `my_exp`). Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present.
+`--package` defaults to the project name with `-` replaced by `_` (`my-exp` → `my_exp`). Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` clones `my_pkg_py` into `pkgs/` (gitignored in the new project).

@@ -93,3 +93,4 @@ dmypy.json
 /.claude/
 /.cursor/
 /.github/instructions/
+/pkgs/
