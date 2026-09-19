@@ -18,6 +18,7 @@ Conventions this project follows. Keep generated code in English even when notes
 | `docs/` | Design notes and math write-ups |
 | `legacy/` | Optional later dir for historical code; excluded from Ruff and ty |
 | `pkgs/` | Optional later dir for third-party or workspace packages; treat as reference unless asked to edit |
+| `data/` | Optional later dir for datasets and other input files; gitignored, do not commit |
 
 Locate the repo with the `.project-root` marker and `paths.py` (`PROJECT_ROOT`, `HYDRA_CONFIG_ROOT`, `ARTIFACT_ROOT`). Do not depend on the process CWD.
 
@@ -50,7 +51,8 @@ See [shell_script/README.md](../shell_script/README.md). Invoke as `bash shell_s
 - Use `set -euo pipefail`.
 - Split help into `@help-begin` (summary / Usage / Env) and `@help-options-begin` (every flag, including `-h/--help`).
 - Help text is English.
-- CPU: `shell_script/run-python.sh`. GPU / Accelerate: `shell_script/mc-run-python.sh`. File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
+- GPU / Accelerate: `shell_script/mc-run-python.sh`. 
+- File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
 - When adding Slurm batch scripts, submit from the repo root and source `shell_script/hpc/env.sh` (`PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`). Sync dependencies on the login node.
 - Do not commit SMTP secrets; keep them in gitignored `shell_script/env_email.sh`.
 
