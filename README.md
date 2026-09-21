@@ -6,25 +6,31 @@ This template **only initializes new projects**. It will refuse a non-empty dest
 
 ## Usage
 
-Clone the repository:
+Clone the template, including submodules (`--mlkit` and `--lorebook` need them):
+
 ```bash
 git clone --recurse-submodules git@github.com:zeroDtree/py-project-template.git
 cd py-project-template
 ```
 
-Initialize a new project:
+Scaffold into an empty directory. `--name` defaults to the destination basename:
+
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp
 ```
 
-Default init does not copy AI rules. Pass `--lorebook` to run `ai-lorebook/apply.sh`.
+The default layout has no training pipeline and no AI editor rules. Optional flags:
 
-To include the `mlkit` training pipeline, pass `--mlkit`. That clones this repo's pinned `my_pkg_py` submodule into `pkgs/my_pkg_py` (gitignored). Use `--https` to set that clone's origin to HTTPS (also automatic when this template's `origin` is already HTTPS).
+- `--mlkit` clones the pinned `my_pkg_py` submodule into gitignored `pkgs/my_pkg_py` and scaffolds the mlkit training pipeline.
+- `--lorebook` copies Cursor / Copilot / Claude rules via `ai-lorebook/apply.sh`.
+- `--https` sets the `pkgs/my_pkg_py` origin to HTTPS. Also applied automatically when this template's `origin` is already HTTPS.
 
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp --mlkit
-./init.sh --dest /path/to/my-exp --name my-exp --mlkit --https --lorebook
+./init.sh --dest /path/to/my-exp --name my-exp --mlkit --lorebook
+./init.sh --dest /path/to/my-exp --name my-exp --mlkit --lorebook --https
 ```
+
 
 ## Template Structure
 
