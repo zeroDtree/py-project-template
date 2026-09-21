@@ -4,15 +4,23 @@
 # Initialize a new Python project from this template.
 #
 # Usage:
-#   ./init.sh --dest PATH [--name NAME] [--package PKG] [--python VERSION] [--mlkit]
+#   ./init.sh --dest PATH [--name NAME] [--package PKG] [--python VERSION]
+#              [--mlkit] [--lorebook] [--https] [--no-git]
 #
 # This script only creates new projects. The destination must not exist,
-# or must be an empty directory.
+# or must be an empty directory. uv is required; it provides Python 3.12.
 #
-# --mlkit clones my_pkg_py into pkgs/ (default remote branch) and scaffolds
-# the mlkit training pipeline. GitHub access is required.
+# --mlkit copies the pinned my_pkg_py submodule into pkgs/ (gitignored)
+# and scaffolds the mlkit training pipeline. Requires:
+#   git submodule update --init my_pkg_py
 #
-# After overlay copy, this script applies AI rules from ai-lorebook/apply.sh.
+# --lorebook copies Cursor / Copilot / Claude rules via ai-lorebook/apply.sh.
+# Off by default. Requires:
+#   git submodule update --init ai-lorebook
+#
+# --https rewrites the pkgs/my_pkg_py origin to HTTPS. Also used automatically
+# when this template's origin remote is already HTTPS.
+#
 # After init, install dependencies from the new project root:
 #   cd PATH && uv sync
 # @help-end
@@ -22,7 +30,9 @@
 #   --name NAME             project name (default: destination basename)
 #   --package PKG           import package name (default: NAME with '-' -> '_')
 #   --python VERSION        Python version (default: 3.12)
-#   --mlkit                 clone my_pkg_py into pkgs/ and scaffold the mlkit training pipeline
+#   --mlkit                 clone pinned my_pkg_py into pkgs/ and scaffold mlkit
+#   --lorebook              copy AI rules from ai-lorebook (off by default)
+#   --https                 use HTTPS for the pkgs/my_pkg_py origin URL
 #   --no-git                skip git init in the destination
 #   -h, --help              show help
 # @help-options-end
@@ -32,6 +42,7 @@ set -euo pipefail
 TEMPLATE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OVERLAY="$TEMPLATE_ROOT/overlay"
 OVERLAY_MLKIT="$TEMPLATE_ROOT/overlay_mlkit"
+SCAFFOLD_PY="$TEMPLATE_ROOT/scaffold.py"
 DEFAULT_MLKIT_URL="git@github.com:zeroDtree/my_pkg_py.git"
 
 usage() {
@@ -39,6 +50,18 @@ usage() {
 	printf '%s\n' '#' 'Options:' '#'
 	awk '/^# @help-options-begin$/{f=1; next} /^# @help-options-end$/{f=0} f' "$0"
 	exit 0
+}
+
+require_uv() {
+	if ! command -v uv >/dev/null 2>&1; then
+		echo "Error: uv is required to run init.sh." >&2
+		echo "Install: https://docs.astral.sh/uv/getting-started/installation/" >&2
+		exit 1
+	fi
+}
+
+uv_python() {
+	uv run --project "$TEMPLATE_ROOT" python "$@"
 }
 
 [[ $# -ge 1 ]] || usage
@@ -52,6 +75,8 @@ PACKAGE=""
 PYTHON_VERSION="3.12"
 NO_GIT=0
 USE_MLKIT=0
+USE_LOREBOOK=0
+FORCE_HTTPS=0
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -80,6 +105,14 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--mlkit)
 			USE_MLKIT=1
+			shift
+			;;
+		--lorebook)
+			USE_LOREBOOK=1
+			shift
+			;;
+		--https)
+			FORCE_HTTPS=1
 			shift
 			;;
 		--no-git)
@@ -144,6 +177,12 @@ if [[ ! -d "$OVERLAY" ]]; then
 	echo "Error: overlay directory is missing: $OVERLAY" >&2
 	exit 1
 fi
+if [[ ! -f "$SCAFFOLD_PY" ]]; then
+	echo "Error: scaffold helper is missing: $SCAFFOLD_PY" >&2
+	exit 1
+fi
+
+require_uv
 
 mlkit_url() {
 	local url
@@ -152,14 +191,43 @@ mlkit_url() {
 }
 
 clone_mlkit() {
-	local url
+	local src="$TEMPLATE_ROOT/my_pkg_py"
+	local dest_pkg="$DEST/pkgs/my_pkg_py"
+	local pin actual url origin rewritten to_https
+
 	if [[ ! -d "$OVERLAY_MLKIT" ]]; then
 		echo "Error: overlay_mlkit directory is missing: $OVERLAY_MLKIT" >&2
 		exit 1
 	fi
-	url="$(mlkit_url)"
+	if ! git -C "$src" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+		echo "Error: submodule my_pkg_py is missing or uninitialized." >&2
+		echo "Run: git submodule update --init my_pkg_py" >&2
+		exit 1
+	fi
+
+	pin="$(git -C "$src" rev-parse HEAD)"
 	mkdir -p "$DEST/pkgs"
-	git clone "$url" "$DEST/pkgs/my_pkg_py"
+	git clone "$src" "$dest_pkg"
+	actual="$(git -C "$dest_pkg" rev-parse HEAD)"
+	if [[ "$actual" != "$pin" ]]; then
+		echo "Error: cloned my_pkg_py HEAD $actual does not match pin $pin" >&2
+		exit 1
+	fi
+
+	url="$(mlkit_url)"
+	origin="$(git -C "$TEMPLATE_ROOT" remote get-url origin 2>/dev/null || true)"
+	to_https=0
+	if [[ "$FORCE_HTTPS" -eq 1 ]]; then
+		to_https=1
+	elif [[ "$origin" == https://* || "$origin" == http://* ]]; then
+		to_https=1
+	fi
+	if [[ "$to_https" -eq 1 ]]; then
+		rewritten="$(uv_python "$SCAFFOLD_PY" rewrite-url "$url" --https)"
+	else
+		rewritten="$url"
+	fi
+	git -C "$dest_pkg" remote set-url origin "$rewritten"
 	cp -a "$OVERLAY_MLKIT/." "$DEST/"
 }
 
@@ -174,74 +242,29 @@ if [[ -d "$PACKAGE_SRC" ]]; then
 	mv "$PACKAGE_SRC" "$DEST/src/$PACKAGE"
 fi
 
-export DEST PROJECT_NAME="$NAME" PACKAGE_NAME="$PACKAGE" PYTHON_VERSION PYTHON_TAG PYTHON_NEXT USE_MLKIT
-python3 - <<'PY'
-import os
-from pathlib import Path
-
-dest = Path(os.environ["DEST"])
-use_mlkit = os.environ.get("USE_MLKIT") == "1"
-replacements = {
-    "__PROJECT_NAME__": os.environ["PROJECT_NAME"],
-    "__PACKAGE_NAME__": os.environ["PACKAGE_NAME"],
-    "__PYTHON_VERSION__": os.environ["PYTHON_VERSION"],
-    "__PYTHON_TAG__": os.environ["PYTHON_TAG"],
-    "__PYTHON_NEXT__": os.environ["PYTHON_NEXT"],
-}
-skip_dirs = {".git", ".venv", "__pycache__"}
-if use_mlkit:
-    skip_dirs.add("pkgs")
-for path in dest.rglob("*"):
-    if any(part in skip_dirs for part in path.parts):
-        continue
-    if not path.is_file():
-        continue
-    try:
-        text = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        continue
-    updated = text
-    for token, value in replacements.items():
-        updated = updated.replace(token, value)
-    if updated != text:
-        path.write_text(updated, encoding="utf-8")
-
-if use_mlkit:
-    pyproject = dest / "pyproject.toml"
-    text = pyproject.read_text(encoding="utf-8")
-    old = '    "omegaconf",\n]'
-    new = '    "omegaconf",\n    "mlkit",\n]'
-    if old not in text:
-        raise SystemExit("Error: could not add mlkit dependency to pyproject.toml")
-    text = text.replace(old, new, 1)
-    if "[tool.uv.sources]" not in text:
-        text = text.rstrip() + "\n\n[tool.uv.sources]\nmlkit = { path = \"pkgs/my_pkg_py\", editable = true }\n"
-    pyproject.write_text(text, encoding="utf-8")
-
-    package = os.environ["PACKAGE_NAME"]
-    extra = f"""
-
-## mlkit training
-
-This project uses the `mlkit` training pipeline from `pkgs/my_pkg_py` (uv editable). That clone is gitignored.
-
-```bash
-uv run python -m {package}.cli
-bash shell_script/mc-run-python.sh {package}.cli
-```
-
-To depend on GitHub instead of the local clone, replace the `mlkit` path source in `pyproject.toml` with `git+https://github.com/zeroDtree/my_pkg_py`.
-"""
-    readme = dest / "README.md"
-    readme.write_text(readme.read_text(encoding="utf-8") + extra, encoding="utf-8")
-PY
-
-APPLY_SH="$TEMPLATE_ROOT/ai-lorebook/apply.sh"
-if [[ ! -f "$APPLY_SH" ]]; then
-	echo "Error: ai-lorebook apply script is missing: $APPLY_SH" >&2
-	exit 1
+finalize_args=(
+	finalize
+	--dest "$DEST"
+	--project-name "$NAME"
+	--package-name "$PACKAGE"
+	--python-version "$PYTHON_VERSION"
+	--python-tag "$PYTHON_TAG"
+	--python-next "$PYTHON_NEXT"
+)
+if [[ "$USE_MLKIT" -eq 1 ]]; then
+	finalize_args+=(--mlkit)
 fi
-bash "$APPLY_SH" -d "$DEST" -f
+uv_python "$SCAFFOLD_PY" "${finalize_args[@]}"
+
+if [[ "$USE_LOREBOOK" -eq 1 ]]; then
+	APPLY_SH="$TEMPLATE_ROOT/ai-lorebook/apply.sh"
+	if [[ ! -f "$APPLY_SH" ]]; then
+		echo "Error: ai-lorebook apply script is missing: $APPLY_SH" >&2
+		echo "Run: git submodule update --init ai-lorebook" >&2
+		exit 1
+	fi
+	bash "$APPLY_SH" -d "$DEST" -f
+fi
 
 chmod +x "$DEST/shell_script/"*.sh 2>/dev/null || true
 chmod +x "$DEST/shell_script/hpc/"*.sh 2>/dev/null || true

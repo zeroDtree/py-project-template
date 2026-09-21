@@ -10,7 +10,7 @@ Invoke as `bash shell_script/...` from the **project root**. Scripts then `cd` t
 | `MC_PROXY_HOST` | `127.0.0.1` | Proxy host when proxy is enabled. |
 | `MC_PROXY_PORT` | `17890` | Proxy port when proxy is enabled. |
 | `MC_SKIP_UV_SYNC` | off | Set to `1` to skip `uv sync` in `run-python.sh` / `mc-run-python.sh`. Under Slurm (`SLURM_JOB_ID` set), defaults to `1`. |
-| `CUDA_VISIBLE_DEVICES` | unset | Comma-separated GPU ids; `mc-run-python.sh` uses this (or `nvidia-smi -L`) for `--num_processes`. |
+| `CUDA_VISIBLE_DEVICES` | unset | Comma-separated GPU ids; `mc-run-python.sh` is GPU-only and uses this (or `nvidia-smi -L`) for `--num_processes`. |
 | `SYNC_REMOTE` | (required for r2l) | Remote repo root for `file_sync/r2l.sh`, e.g. `user@host:/path/to/__PROJECT_NAME__`. |
 
 ## Run Python
@@ -21,7 +21,7 @@ CPU / no Accelerate:
 bash shell_script/run-python.sh __PACKAGE_NAME__.cli
 ```
 
-GPU training / eval with Accelerate. Logs the command under `artifacts/command_logs/` and emails on success (exit 0 only):
+GPU-only training / eval with Accelerate. Requires at least one visible GPU. Logs the command under `artifacts/command_logs/` and emails on success (exit 0 only). For CPU, use `run-python.sh`.
 
 ```bash
 export MC_ENABLE_PROXY=1

@@ -14,7 +14,7 @@ CPU (no Accelerate):
 bash shell_script/run-python.sh __PACKAGE_NAME__.cli
 ```
 
-GPU training / eval with Accelerate:
+GPU-only training / eval with Accelerate (`run-python.sh` for CPU):
 
 ```bash
 bash shell_script/mc-run-python.sh __PACKAGE_NAME__.cli

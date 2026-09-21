@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # @help-begin
-# Launch an installed project module with Accelerate.
+# GPU-only Accelerate launcher. Requires at least one visible GPU
+# (CUDA_VISIBLE_DEVICES or nvidia-smi). For CPU, use run-python.sh.
 #
 # Usage:
 #   shell_script/mc-run-python.sh MODULE [hydra overrides...]
@@ -79,7 +80,8 @@ n_cards="$(count_visible_gpus)"
 n_cards="${n_cards// /}"
 
 if [[ -z "$n_cards" || "$n_cards" -lt 1 ]]; then
-	echo "Error: could not determine GPU count (CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset})" >&2
+	echo "Error: mc-run-python.sh is GPU-only (CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset})." >&2
+	echo "Use shell_script/run-python.sh for CPU runs." >&2
 	exit 1
 fi
 

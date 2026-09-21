@@ -6,20 +6,20 @@ import wandb
 from accelerate import Accelerator
 from omegaconf import DictConfig, OmegaConf
 
-from mlkit.pipeline.pipeline import LogConfig
+from mlkit.pipeline import LogConfig
 from mlkit.util.log import get_and_create_new_log_dir, get_logger
 from mlkit.util.seed import seed_everything
 from mlkit.util.show import show_info
-from mlkit.util.utils_for_main import (
+
+from __PACKAGE_NAME__.data import get_collate_fn, get_dataset
+from __PACKAGE_NAME__.model import get_model
+from __PACKAGE_NAME__.utils_for_main import (
     get_learing_rate_scheduler,
     get_new_save_dir,
     get_optimizer,
     get_run_name,
     get_train_class,
 )
-
-from __PACKAGE_NAME__.data import get_collate_fn, get_dataset
-from __PACKAGE_NAME__.model import get_model
 
 
 def run(cfg: DictConfig) -> None:

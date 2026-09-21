@@ -17,7 +17,7 @@ Conventions this project follows. Keep generated code in English even when notes
 | `artifacts/` | Runtime outputs: Hydra runs, checkpoints, logs |
 | `docs/` | Design notes and math write-ups |
 | `legacy/` | Optional later dir for historical code; excluded from Ruff and ty |
-| `pkgs/` | Optional third-party or workspace packages. `--mlkit` clones `my_pkg_py` here for the `mlkit.pipeline` training loop; treat as reference unless asked to edit |
+| `pkgs/` | Optional third-party or workspace packages. `--mlkit` clones this template's pinned `my_pkg_py` here for the `mlkit.pipeline` training loop; treat as reference unless asked to edit |
 | `data/` | Optional later dir for datasets and other input files; gitignored, do not commit |
 
 Locate the repo with the `.project-root` marker and `paths.py` (`PROJECT_ROOT`, `HYDRA_CONFIG_ROOT`, `ARTIFACT_ROOT`). Do not depend on the process CWD.
@@ -51,7 +51,7 @@ See [shell_script/README.md](../shell_script/README.md). Invoke as `bash shell_s
 - Use `set -euo pipefail`.
 - Split help into `@help-begin` (summary / Usage / Env) and `@help-options-begin` (every flag, including `-h/--help`).
 - Help text is English.
-- GPU / Accelerate: `shell_script/mc-run-python.sh`. 
+- GPU / Accelerate: `shell_script/mc-run-python.sh` (GPU-only; CPU → `run-python.sh`). 
 - File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
 - When adding Slurm batch scripts, submit from the repo root and source `shell_script/hpc/env.sh` (`PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`). Sync dependencies on the login node.
 - Do not commit SMTP secrets; keep them in gitignored `shell_script/env_email.sh`.
@@ -61,5 +61,5 @@ See [shell_script/README.md](../shell_script/README.md). Invoke as `bash shell_s
 - Compose configs under `configs/hydra`.
 - Use `@hydra.main(version_base="1.3", config_path=str(HYDRA_CONFIG_ROOT), config_name="default.yaml")`.
 - Hydra `run.dir` and `sweep.dir` (see `configs/hydra/hydra/default.yaml`), checkpoints, and logs live under `artifacts/`.
-- When this project was initialized with `--mlkit`, training goes through `mlkit.pipeline` (`src/__PACKAGE_NAME__/train.py`) and `pkgs/my_pkg_py` is a gitignored editable checkout.
+- When this project was initialized with `--mlkit`, training goes through `mlkit.pipeline` (`src/__PACKAGE_NAME__/train.py`) and `pkgs/my_pkg_py` is a gitignored editable checkout pinned to the template submodule commit.
 - Do not commit `artifacts/`, datasets, `.env`, or secret scripts.

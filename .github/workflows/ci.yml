@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Init submodules over HTTPS
+        run: |
+          git config url."https://github.com/".insteadOf "git@github.com:"
+          git submodule update --init my_pkg_py ai-lorebook
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - name: Golden init
+        run: bash tests/golden_init.sh
