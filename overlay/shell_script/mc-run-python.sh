@@ -111,6 +111,6 @@ set -e
 
 # Notify only on successful completion; skip email for manual interrupts (debug).
 if [[ "$exit_code" -eq 0 ]]; then
-	bash "$SCRIPT_DIR/email.sh" "$exit_code" || true
+	bash "$SCRIPT_DIR/email.sh" "$exit_code" -- "$entry_module" "$@" || true
 fi
 exit "$exit_code"

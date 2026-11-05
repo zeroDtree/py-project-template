@@ -32,12 +32,13 @@ Manage Clash or another local proxy separately; this repo does not start it auto
 
 ## Email
 
-Copy `env_email.sh.example` to `env_email.sh` (gitignored) and fill in SMTP settings. `mc-run-python.sh` calls `email.sh` only when the run exits 0.
+Copy `env_email.sh.example` to `env_email.sh` (gitignored) and fill in SMTP settings (`FROM_EMAIL`, `FROM_SMTP_HOST`, `FROM_SMTP_PORT`, `FROM_SMTP_PASSWORD`, `TO_EMAIL`). `mc-run-python.sh` calls `email.sh` only when the run exits 0 and forwards the module and Hydra overrides into the message.
 
 ```bash
 cp shell_script/env_email.sh.example shell_script/env_email.sh
 bash shell_script/email.sh 0
-```
+bash shell_script/email.sh 0 -- __PACKAGE_NAME__.cli key=value
+``` 
 
 ## File sync
 
