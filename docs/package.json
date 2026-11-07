@@ -1,0 +1,12 @@
+{
+  "name": "py-project-template-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bundle": "node bundle.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.11",
+    "mermaid": "12.3.0"
+  }
+}

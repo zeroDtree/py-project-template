@@ -51,3 +51,8 @@ dmypy.json
 
 # Local scaffold trials (do not commit generated projects)
 /artifacts/
+
+# MkDocs build output and the docs toolchain
+/site/
+/docs/node_modules/
+/docs/assets/mermaid.js

@@ -1,0 +1,118 @@
+site_name: py-project-template
+site_description: Scaffold a new Python / ML-research repo with uv, Ruff, ty, and Hydra.
+site_url: https://zerodtree.github.io/py-project-template/
+repo_url: https://github.com/zeroDtree/py-project-template
+repo_name: zeroDtree/py-project-template
+edit_uri: edit/main/docs/
+docs_dir: docs
+
+exclude_docs: |
+  package.json
+  package-lock.json
+  bundle.mjs
+  mermaid-entry.js
+  node_modules/**
+
+nav:
+  - Home: index.md
+  - Start:
+      - Getting started: getting-started.md
+      - init.sh: init.md
+  - Generated project:
+      - Layout: layout.md
+      - Environment: environment.md
+      - Quality checks: quality.md
+      - Configuration: configuration.md
+      - Shell scripts: shell-scripts.md
+  - Options:
+      - mlkit: mlkit.md
+      - Lorebook: lorebook.md
+  - Conventions: conventions.md
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+extra_css:
+  - stylesheets/mermaid.css
+
+extra_javascript:
+  - assets/mermaid.js
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
+
+plugins:
+  - search:
+      lang:
+        - en
+        - zh
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: false
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: zh
+          name: 中文
+          build: true
+          site_description: 用 uv、Ruff、ty 和 Hydra 初始化一个新的 Python / ML 研究仓库。
+          nav_translations:
+            Home: 首页
+            Start: 开始
+            Getting started: 快速开始
+            init.sh: init.sh
+            Generated project: 生成的项目
+            Layout: 目录结构
+            Environment: Python 环境
+            Quality checks: 质量检查
+            Configuration: 配置与产物
+            Shell scripts: Shell 脚本
+            Options: 可选项
+            mlkit: mlkit
+            Lorebook: Lorebook
+            Conventions: 约定
+          theme:
+            palette:
+              - toggle:
+                  name: 切换到深色模式
+              - toggle:
+                  name: 切换到浅色模式

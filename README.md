@@ -76,3 +76,18 @@ my-exp/
 ```
 
 `--package` defaults to the project name with `-` replaced by `_` (`my-exp` → `my_exp`). Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` clones the pinned `my_pkg_py` submodule into `pkgs/` (gitignored in the new project).
+
+## Documentation
+
+English: <https://zerodtree.github.io/py-project-template/>
+
+中文: <https://zerodtree.github.io/py-project-template/zh/>
+
+Preview locally from this repository:
+
+```bash
+npm ci --prefix docs
+npm run bundle --prefix docs
+uv sync --group docs
+uv run mkdocs serve
+```
