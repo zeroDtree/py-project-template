@@ -25,7 +25,7 @@ Both configs exclude `legacy/`, `pkgs/`, and `artifacts/` when those directories
 
 Ruff is Black-compatible: line length 120, spaces, double quotes. The enabled rules are the pycodestyle errors `E4`, `E7`, and `E9`, Pyflakes `F`, and isort `I`. `E741` (ambiguous variable names) is ignored. The Ruff target matches the Python version, `py312` for 3.12.
 
-ty sets `unresolved-import` to ignore.
+ty sets `import-not-found` to ignore.
 
 ## pytest
 

@@ -1,5 +1,5 @@
 [rules]
-unresolved-import = "ignore"
+import-not-found = "ignore"
 
 [src]
 include = [

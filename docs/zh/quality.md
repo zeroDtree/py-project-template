@@ -25,7 +25,7 @@ uv run ruff format
 
 Ruff 与 Black 兼容：行宽 120、空格缩进、双引号。启用的规则是 pycodestyle 的 `E4`、`E7`、`E9`，Pyflakes 的 `F`，以及 isort 的 `I`。`E741`（有歧义的变量名）被忽略。Ruff 的 target 跟 Python 版本走，3.12 对应 `py312`。
 
-ty 把 `unresolved-import` 设为 ignore。
+ty 把 `import-not-found` 设为 ignore。
 
 ## pytest
 
