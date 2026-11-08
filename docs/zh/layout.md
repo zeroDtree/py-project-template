@@ -1,6 +1,6 @@
 # 目录结构
 
-`./init.sh --dest /path/to/my-exp --name my-exp` 之后，新项目是这样的：
+`./init.sh --dest /path/to/my-exp --name my-exp` 之后的目录：
 
 ```text
 my-exp/
@@ -27,9 +27,9 @@ my-exp/
 └── README.md
 ```
 
-`init.sh` 不会创建 `artifacts/`。启动脚本或 Hydra 在写出结果时才创建它。
+`artifacts/` 要等启动脚本或 Hydra 写出结果时才出现。
 
-## 每个路径做什么
+## 路径
 
 | 路径 | 作用 |
 | --- | --- |
@@ -42,25 +42,25 @@ my-exp/
 | `.project-root` | 标记文件。`paths.py` 向父目录查找，直到看见它。 |
 | `.python-version` | `--python` 的版本，给 uv 用。 |
 
-## 参数会多出哪些文件
+## `--mlkit` 和 `--lorebook`
 
-`--mlkit` 会合并 `overlay_mlkit/` 并克隆库：
+`--mlkit` 合并 `overlay_mlkit/`，并克隆库：
 
-- 包里增加 `src/my_exp/train.py`、`data.py`、`model.py`、`utils_for_main.py`。`cli.py` 改为调用 `train.run`。
-- `configs/hydra/` 增加 `model/`、`dataset/`、`optimizer/`、`wandb/`。
-- `pkgs/my_pkg_py` 是一个 git 克隆，提交钉在模板子模块当前的 commit。新项目的 gitignore 忽略整个 `pkgs/`。
+- 包里多出 `src/my_exp/train.py`、`data.py`、`model.py`、`utils_for_main.py`。`cli.py` 改去调用 `train.run`。
+- `configs/hydra/` 多出 `model/`、`dataset/`、`optimizer/`、`wandb/`。
+- `pkgs/my_pkg_py` 是一次 git 克隆，提交钉在模板子模块当前的 commit。新项目把整个 `pkgs/` 放进 gitignore。
 
-`--lorebook` 只复制编辑器规则，不改 Python 包。
+`--lorebook` 复制编辑器规则：
 
 - `.cursor/`：Cursor 的规则和技能
 - `.github/instructions/`：Copilot
 - `.claude/rules/`：Claude
 
-生成的 `.gitignore` 会忽略这三处。
+生成的 `.gitignore` 忽略这三处。
 
-## 以后可以自己加的目录
+## 以后再加
 
-`init.sh` 不创建下面这些目录。生成的 Ruff 和 ty 配置已经排除前两个（一旦它们出现）。
+这三个目录自己建。前两个一旦出现，生成的 Ruff 和 ty 配置就会排除它们。
 
 | 路径 | 作用 |
 | --- | --- |

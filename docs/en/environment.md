@@ -1,6 +1,6 @@
 # Python environment
 
-Generated projects use uv. Do not install dependencies with bare `pip`, and do not run the package with a system `python` that is outside the project environment.
+Generated projects use uv. Dependencies and commands go through uv, inside the project environment.
 
 ## Version pin
 
@@ -12,11 +12,11 @@ For 3.12 the constraint is:
 >=3.12,<3.13
 ```
 
-The upper bound is the next minor version, not the next patch. `3.12.8` still produces `>=3.12.8,<3.13` and a Ruff target of `py312`.
+The upper bound is the next minor version, so `3.12.8` still produces `>=3.12.8,<3.13` and a Ruff target of `py312`.
 
 The package is marked `Private :: Do Not Upload`.
 
-## How to run things
+## Commands
 
 From the new project root:
 
@@ -43,9 +43,9 @@ my-exp = "my_exp.cli:main"
 | `utils` | tqdm, accelerate | Progress output and the GPU launcher. |
 | `dev` | both groups above | What `uv sync` installs by default. |
 
-Hydra (`hydra-core`, `omegaconf`) is a project dependency, not a group, so it is installed with the package.
+Hydra (`hydra-core`, `omegaconf`) is a project dependency, so it is installed with the package.
 
-## Layout and paths
+## paths.py
 
 The package lives in `src/my_exp`. Hatchling builds that tree:
 
@@ -54,7 +54,7 @@ The package lives in `src/my_exp`. Hatchling builds that tree:
 packages = ["src/my_exp"]
 ```
 
-Locate files from the repository, not from the process current directory. `paths.py` walks from its own file up to the `.project-root` marker and exposes:
+`paths.py` walks from its own file up to the `.project-root` marker and exposes:
 
 | Name | Points at |
 | --- | --- |

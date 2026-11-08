@@ -1,6 +1,6 @@
 # Quality checks
 
-Ruff and ty are the gates for Python in a generated project. Both are limited to the package and the tests.
+Ruff and ty check the package and the tests.
 
 ```bash
 uv run ruff check
@@ -15,7 +15,7 @@ uv run ruff check --fix
 uv run ruff format
 ```
 
-Run `ruff check` and `ty check` again after a fix. A green first command does not imply the second one is green.
+After a fix, run `ruff check` and `ty check` again.
 
 ## Scope
 
@@ -37,6 +37,6 @@ testpaths = ["tests"]
 
 The sample test checks that `.project-root` exists, that `configs/hydra/default.yaml` exists, and that `project_path` resolves a relative config path from the repository root.
 
-## Style used by the scaffold
+## Python style
 
 Generated Python uses `from __future__ import annotations` and `X | None` unions. Prefer a frozen dataclass when you add a config object. Identifiers, comments, docstrings, and CLI help stay in English. See [Conventions](conventions.md).

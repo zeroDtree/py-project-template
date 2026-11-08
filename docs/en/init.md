@@ -21,7 +21,7 @@
 | `--no-git` | Do not run `git init` in the destination. |
 | `-h`, `--help` | Print the comment help and exit. |
 
-## Names that are accepted
+## Names
 
 - Project name: starts and ends with a letter or digit. The middle may also contain `.`, `_`, and `-`. Example: `my-exp`.
 - Package name: a Python identifier, so letters, digits, and `_`, not starting with a digit. Example: `my_exp`.
@@ -34,7 +34,7 @@ The script derives two more values from that version:
 
 The generated `requires-python` is `>=3.12,<3.13` when the version is 3.12. The upper bound is the next minor and is exclusive.
 
-## What the script does
+## Order
 
 ```mermaid
 flowchart TD
@@ -49,8 +49,6 @@ flowchart TD
   lore -->|no| git["git init -b main<br/>unless --no-git"]
   rules --> git
 ```
-
-In order:
 
 1. Reject a missing `--dest`, a path that is not a directory, or a directory that already contains files.
 2. Require `uv` on `PATH`.
@@ -85,4 +83,4 @@ The URL is rewritten to HTTPS when either of these is true:
 - `--https` was passed
 - this template's own `origin` already starts with `http://` or `https://`
 
-`git@host:path` and `ssh://git@host/path` become `https://host/path`. An URL that is already HTTP or HTTPS is unchanged. `--https` does nothing for a project created without `--mlkit`, because only the mlkit clone gets that remote.
+`git@host:path` and `ssh://git@host/path` become `https://host/path`. An URL that is already HTTP or HTTPS stays as written. That remote exists only on the `--mlkit` clone, so `--https` applies there.

@@ -1,6 +1,6 @@
 # Configuration and artifacts
 
-Configuration is composed with Hydra from `configs/hydra`. Outputs go under `artifacts/`. Code finds those directories through `paths.py`, so the process current directory does not matter. See [Environment](environment.md).
+Hydra composes configuration from `configs/hydra`. Outputs go under `artifacts/`. `paths.py` finds those directories from the repository. See [Environment](environment.md).
 
 ## Base configs
 
@@ -20,9 +20,9 @@ defaults:
 | `configs/hydra/log/default.yaml` | `log_dir: artifacts/logs`, plus the log step, epoch, and strategy fields. |
 | `configs/hydra/hydra/default.yaml` | Hydra's own output directories, below. |
 
-`--mlkit` adds `optimizer`, `model`, `dataset`, and `wandb` to that defaults list. The base CLI does not read those groups.
+`--mlkit` adds `optimizer`, `model`, `dataset`, and `wandb` to that defaults list. The base CLI reads the three groups above.
 
-## Where runs are written
+## Output paths
 
 ```yaml
 hydra:
@@ -35,7 +35,7 @@ hydra:
 
 Checkpoints use `artifacts/checkpoints` from the train config. Logs use `artifacts/logs`. The GPU runner also appends a line under `artifacts/command_logs/`. All of `artifacts/` is gitignored.
 
-## The CLI
+## CLI
 
 The base `src/my_exp/cli.py` loads the config and prints it:
 
@@ -45,15 +45,15 @@ def main(cfg: DictConfig) -> None:
     print(OmegaConf.to_yaml(cfg))
 ```
 
-`config_path` is the absolute directory from `paths.py`, not a path relative to the shell's current directory.
+`config_path` is the absolute directory from `paths.py`.
 
 ```bash
 uv run python -m my_exp.cli --help
 uv run python -m my_exp.cli train.seed=0
 ```
 
-With `--mlkit`, the same entrypoint calls `train.run(cfg)` instead of printing. That path is described on the [mlkit](mlkit.md) page.
+With `--mlkit`, that entrypoint calls `train.run(cfg)`. See [mlkit](mlkit.md).
 
 ## Accelerate
 
-`configs/accelerate/acc_cfg_base.yaml` is the launch config for `shell_script/mc-run-python.sh`. It is a local multi-GPU config: `distributed_type: MULTI_GPU`, `use_cpu: false`, and `mixed_precision: "no"`. The script passes the visible GPU count as `--num_processes` and picks a main-process port. CPU runs do not use this file; they go through `run-python.sh`.
+`configs/accelerate/acc_cfg_base.yaml` is the launch config for `shell_script/mc-run-python.sh`. It is a local multi-GPU config: `distributed_type: MULTI_GPU`, `use_cpu: false`, and `mixed_precision: "no"`. The script passes the visible GPU count as `--num_processes` and picks a main-process port. CPU runs go through `run-python.sh`.

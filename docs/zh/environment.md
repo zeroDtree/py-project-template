@@ -1,10 +1,10 @@
 # Python 环境
 
-生成的项目用 uv。不要用裸的 `pip` 装依赖，也不要用项目环境以外的系统 `python` 跑这个包。
+生成的项目用 uv 管依赖和命令，都在项目自己的环境里。
 
 ## 版本约束
 
-`--python` 默认是 3.12。这个值会写进 `.python-version` 和 `requires-python`。
+`--python` 默认 3.12，写进 `.python-version` 和 `requires-python`。
 
 3.12 的约束是：
 
@@ -12,13 +12,13 @@
 >=3.12,<3.13
 ```
 
-上界是下一个次版本，不是下一个补丁。`3.12.8` 得到的仍是 `>=3.12.8,<3.13`，Ruff 的 target 是 `py312`。
+上界取下一个次版本。`3.12.8` 得到 `>=3.12.8,<3.13`，Ruff target 是 `py312`。
 
-包带有分类标记 `Private :: Do Not Upload`。
+包的分类是 `Private :: Do Not Upload`。
 
-## 怎么运行
+## 命令
 
-在新项目的根目录：
+在新项目根目录：
 
 ```bash
 uv sync
@@ -26,14 +26,14 @@ uv run python -m my_exp.cli --help
 uv run pytest
 ```
 
-`pyproject.toml` 还有一个与项目同名的控制台脚本：
+`pyproject.toml` 里还有一个同名的控制台脚本：
 
 ```toml
 [project.scripts]
 my-exp = "my_exp.cli:main"
 ```
 
-`uv sync` 会安装项目本身和 `dev` 组。装完之后，交互式 shell 可以 `source .venv/bin/activate`。
+`uv sync` 安装项目和 `dev` 组。之后交互式 shell 可以 `source .venv/bin/activate`。
 
 ## 依赖组
 
@@ -43,18 +43,18 @@ my-exp = "my_exp.cli:main"
 | `utils` | tqdm、accelerate | 进度输出和 GPU 启动器。 |
 | `dev` | 上面两组 | `uv sync` 默认会装的内容。 |
 
-Hydra（`hydra-core`、`omegaconf`）是项目依赖，不是某个组，会随包一起安装。
+Hydra（`hydra-core`、`omegaconf`）算项目依赖，跟包装在一起。
 
-## 布局和路径
+## paths.py
 
-包在 `src/my_exp`。Hatchling 构建的就是这棵树：
+包在 `src/my_exp`。Hatchling 打的就是这棵树：
 
 ```toml
 [tool.hatch.build.targets.wheel]
 packages = ["src/my_exp"]
 ```
 
-文件位置相对于仓库，而不是进程的当前目录。`paths.py` 从自己的文件向上找到 `.project-root`，然后给出：
+`paths.py` 从自己的文件往上找 `.project-root`，然后给出：
 
 | 名称 | 指向 |
 | --- | --- |
@@ -63,4 +63,4 @@ packages = ["src/my_exp"]
 | `HYDRA_CONFIG_ROOT` | `PROJECT_ROOT / "configs" / "hydra"` |
 | `ARTIFACT_ROOT` | `PROJECT_ROOT / "artifacts"` |
 
-`project_path("configs/hydra/default.yaml")` 把相对路径接到 `PROJECT_ROOT` 上。绝对路径原样返回。找不到标记文件时，导入这个模块会抛出 `RuntimeError`。
+`project_path("configs/hydra/default.yaml")` 把相对路径接到 `PROJECT_ROOT` 后面。传绝对路径就原样返回。找不到标记文件时，导入会抛 `RuntimeError`。

@@ -2,9 +2,9 @@
 
 ## 准备
 
-安装 [uv](https://docs.astral.sh/uv/getting-started/installation/) 和 git。没有 uv 时 `init.sh` 直接退出。模板自己的辅助脚本用的 Python 3.12 由 uv 提供，不用另外装解释器。
+安装 [uv](https://docs.astral.sh/uv/getting-started/installation/) 和 git。找不到 uv 时 `init.sh` 退出。模板里的辅助脚本用 uv 带的 Python 3.12。
 
-只有 `--mlkit` 和 `--lorebook` 需要 git 子模块。不用这两个参数时，可以不初始化子模块。
+`--mlkit` 和 `--lorebook` 依赖 git 子模块。
 
 ## 克隆
 
@@ -13,24 +13,24 @@ git clone --recurse-submodules git@github.com:zeroDtree/py-project-template.git
 cd py-project-template
 ```
 
-仓库已经在本地、但当时没带子模块时：
+仓库已经在本地、克隆时没带子模块：
 
 ```bash
 git submodule update --init my_pkg_py
 git submodule update --init ai-lorebook
 ```
 
-只初始化你马上要用的那一个即可。
+接下来要用哪个，就初始化哪个。
 
 ## 创建项目
 
-目标路径可以不存在，也可以是空目录。`--name` 省略时，用目标目录的最后一段作为项目名。
+路径不存在会建出来。路径已经在，就必须是空目录。`--name` 省略时取目录名的最后一段。
 
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp
 ```
 
-然后进入新项目：
+然后：
 
 ```bash
 cd /path/to/my-exp
@@ -41,9 +41,9 @@ uv run pytest
 uv run python -m my_exp.cli --help
 ```
 
-`--package` 的默认值是把项目名里的 `-` 换成 `_`。`my-exp` 的导入名是 `my_exp`。
+`--package` 默认把项目名里的 `-` 换成 `_`。`my-exp` 的导入名是 `my_exp`。
 
-可选参数在 [init.sh](init.md) 一页有完整说明：
+别的参数在 [init.sh](init.md)：
 
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp --mlkit
@@ -51,15 +51,15 @@ uv run python -m my_exp.cli --help
 ./init.sh --dest /path/to/my-exp --name my-exp --mlkit --lorebook --https
 ```
 
-## 初始化失败时
+## 失败
 
 !!! failure "没有 uv"
 
-    装好 uv 再运行。脚本不会改用系统里的 `python` 或 `pip`。
+    装上 uv 再跑一次。
 
 !!! failure "目标目录不是空的"
 
-    `init.sh` 只创建新项目。换一个空目录。它不会往已有文件的仓库里合并。
+    换一个空目录。
 
 !!! failure "子模块还没初始化"
 

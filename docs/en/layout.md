@@ -27,9 +27,9 @@ my-exp/
 └── README.md
 ```
 
-`artifacts/` is not created by `init.sh`. Runners and Hydra create it when something writes output.
+Runners and Hydra create `artifacts/` when something writes output.
 
-## What each path is for
+## Paths
 
 | Path | Role |
 | --- | --- |
@@ -42,7 +42,7 @@ my-exp/
 | `.project-root` | Marker file. `paths.py` walks parents until it finds this file. |
 | `.python-version` | The `--python` version, for uv. |
 
-## Flags that add files
+## `--mlkit` and `--lorebook`
 
 `--mlkit` merges `overlay_mlkit/` and clones the library:
 
@@ -50,7 +50,7 @@ my-exp/
 - `configs/hydra/` gains `model/`, `dataset/`, `optimizer/`, and `wandb/`.
 - `pkgs/my_pkg_py` is a git clone pinned to the template submodule's current commit. `pkgs/` is gitignored in the new project.
 
-`--lorebook` copies editor rules. It does not change the Python package.
+`--lorebook` copies editor rules.
 
 - `.cursor/` for Cursor rules and skills
 - `.github/instructions/` for Copilot
@@ -58,9 +58,9 @@ my-exp/
 
 Those three paths are gitignored by the generated `.gitignore`.
 
-## Directories you can add later
+## Later
 
-`init.sh` does not create these. The generated Ruff and ty configs already ignore the first two when they appear.
+Add these yourself. The generated Ruff and ty configs already ignore the first two when they appear.
 
 | Path | Role |
 | --- | --- |

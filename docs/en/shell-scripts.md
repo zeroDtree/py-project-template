@@ -17,17 +17,17 @@ bash shell_script/run-python.sh --help
 | `CUDA_VISIBLE_DEVICES` | unset | GPU ids for `mc-run-python.sh`. The script counts these, or the lines of `nvidia-smi -L`, and requires at least one. |
 | `SYNC_REMOTE` | required for r2l | Remote repo root, for example `user@host:/path/to/my-exp`. |
 
-The repo does not start Clash or any other proxy. Start that process yourself, then export `MC_ENABLE_PROXY=1`.
+Start Clash, or whatever proxy you use, yourself. Then `export MC_ENABLE_PROXY=1`.
 
 ## CPU and GPU
 
-CPU, or any run that should not go through Accelerate:
+CPU, or a run that stays off Accelerate:
 
 ```bash
 bash shell_script/run-python.sh my_exp.cli
 ```
 
-GPU-only training or eval. This fails when no GPU is visible, and it tells you to use `run-python.sh` for CPU.
+GPU training or eval. With no visible GPU the script exits and names `run-python.sh` for CPU.
 
 ```bash
 export MC_ENABLE_PROXY=1
@@ -57,7 +57,7 @@ bash shell_script/email.sh 0 -- my_exp.cli key=value
 
 `shell_script/file_sync/r2l.sh` pulls paths from a remote checkout into this repo at the same relative path. List those paths in `shell_script/file_sync/targets.txt`, one relative path per line. Blank lines and `#` comments are ignored. Absolute paths and `..` are refused.
 
-The default is `rsync --dry-run`. Pass `--run` or `-y` to copy. Local files that are missing on the remote are kept, because rsync is not given `--delete`.
+The default is `rsync --dry-run`. Pass `--run` or `-y` to copy. Local files that are missing on the remote are kept, because rsync is invoked without `--delete`.
 
 ```bash
 export SYNC_REMOTE=user@host:/path/to/my-exp
@@ -67,9 +67,9 @@ bash shell_script/file_sync/r2l.sh --run
 
 ## Slurm
 
-The overlay ships `shell_script/hpc/env.sh` only. There is no sample batch script. Source `env.sh` from a batch script you add, and submit that job from the repo root.
+The overlay ships `shell_script/hpc/env.sh`. Write the batch script yourself, source `env.sh` from it, and submit that job from the repo root.
 
-`env.sh` sets `PROJECT_ROOT` from `SLURM_SUBMIT_DIR`, not from `BASH_SOURCE`. Slurm often runs a copy of the batch file from a spool directory, so the script path is the wrong place to find the repo. If `SLURM_SUBMIT_DIR` is unset, the helper returns an error.
+`env.sh` sets `PROJECT_ROOT` from `SLURM_SUBMIT_DIR`. Slurm often runs a copy of the batch file from a spool directory, so `BASH_SOURCE` points at the wrong place. If `SLURM_SUBMIT_DIR` is unset, the helper returns an error.
 
 `CUDA_HOME` defaults to `$HOME/software/cuda/cuda-12.4`.
 

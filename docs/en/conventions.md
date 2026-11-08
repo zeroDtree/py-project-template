@@ -1,10 +1,10 @@
 # Conventions
 
-These are the rules written into a generated project's `docs/best-practices.md`. That file stays in English. This page describes the same rules for someone reading the template.
+A generated project's `docs/best-practices.md` is the English copy of these rules.
 
 ## Language
 
-Identifiers, comments, docstrings, CLI help, commit messages, and other developer-facing text use clear English. A request written in another language still produces English code. Keep the request's meaning.
+Identifiers, comments, docstrings, CLI help, and commit messages are in English.
 
 ## Layout
 
@@ -19,15 +19,15 @@ Identifiers, comments, docstrings, CLI help, commit messages, and other develope
 | `pkgs/` | Optional third-party or workspace packages. `--mlkit` clones the pinned `my_pkg_py` here. Treat it as a reference unless you were asked to edit it. |
 | `data/` | Optional later directory for datasets and other inputs. Gitignored. |
 
-Find the repo with the `.project-root` marker and `paths.py`. Do not depend on the process current directory.
+The repo root is the directory that holds `.project-root`. `paths.py` reads it from there.
 
 ## Environment
 
-Use Python 3.12 unless `--python` said otherwise. Use uv, not bare `python` or `pip`.
+Use Python 3.12 unless `--python` said otherwise. Use uv.
 
 One-off commands go through `uv run`. An interactive session may `source .venv/bin/activate`. The package is private (`Private :: Do Not Upload`).
 
-## Quality gates
+## Checks
 
 Before Python work is finished:
 
@@ -46,7 +46,7 @@ Invoke `bash shell_script/...` from the project root. Scripts use `set -euo pipe
 
 GPU work goes through `shell_script/mc-run-python.sh`. CPU work goes through `shell_script/run-python.sh`. File pull is `shell_script/file_sync/r2l.sh`, dry-run unless you pass `--run`. Slurm batch scripts should be submitted from the repo root and should source `shell_script/hpc/env.sh`. Sync dependencies on the login node.
 
-Do not commit SMTP secrets. Keep them in gitignored `shell_script/env_email.sh`.
+SMTP secrets stay in gitignored `shell_script/env_email.sh`. Do not commit the password.
 
 ## Hydra and training
 
@@ -54,4 +54,4 @@ Compose configs under `configs/hydra`. The entrypoint uses `@hydra.main(version_
 
 Hydra run and sweep directories, checkpoints, and logs live under `artifacts/`. With `--mlkit`, training goes through `mlkit.pipeline` and `pkgs/my_pkg_py` is the gitignored editable checkout pinned to the template submodule.
 
-Do not commit `artifacts/`, datasets, `.env`, or secret scripts.
+Leave `artifacts/`, datasets, `.env`, and secret scripts out of git.

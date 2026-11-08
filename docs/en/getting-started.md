@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and git. `init.sh` refuses to run without uv. uv provides Python 3.12 for the template's own helper; you do not install that interpreter yourself.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and git. `init.sh` exits when uv is missing. uv supplies Python 3.12 for the template's own helper.
 
-`--mlkit` and `--lorebook` need the git submodules. A project without those flags does not.
+`--mlkit` and `--lorebook` need the git submodules.
 
 ## Clone
 
@@ -20,17 +20,17 @@ git submodule update --init my_pkg_py
 git submodule update --init ai-lorebook
 ```
 
-Initialize only the submodule you are about to use.
+Init the submodule you are about to use.
 
 ## Create a project
 
-The destination must not exist, or it must be an empty directory. `--name` defaults to the destination's basename.
+The destination is created when missing. An existing directory must be empty. `--name` defaults to the destination's basename.
 
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp
 ```
 
-Then, from the new project:
+Then:
 
 ```bash
 cd /path/to/my-exp
@@ -43,7 +43,7 @@ uv run python -m my_exp.cli --help
 
 `--package` defaults to the project name with `-` replaced by `_`, so `my-exp` imports as `my_exp`.
 
-Optional flags, covered on the [init.sh](init.md) page:
+Other flags are listed on the [init.sh](init.md) page:
 
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp --mlkit
@@ -51,15 +51,15 @@ Optional flags, covered on the [init.sh](init.md) page:
 ./init.sh --dest /path/to/my-exp --name my-exp --mlkit --lorebook --https
 ```
 
-## When init stops
+## Failures
 
 !!! failure "uv is missing"
 
-    Install uv and run the command again. The script does not fall back to `python` or `pip`.
+    Install uv and run the command again.
 
 !!! failure "Destination is not empty"
 
-    `init.sh` only creates new projects. Pick an empty directory. It will not merge into a repo that already has files.
+    Pick an empty directory.
 
 !!! failure "Submodule is missing"
 
