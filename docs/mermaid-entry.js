@@ -4,24 +4,16 @@ const config = {
   securityLevel: "loose",
   startOnLoad: false,
   layout: "elk",
-  look: "neo",
-  theme: "redux-color",
-  themeVariables: {
-    fontSize: "15px",
-    fontFamily: 'Inter, "PingFang SC", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif',
-  },
-  flowchart: {
-    useMaxWidth: false,
-    htmlLabels: true,
-    wrappingWidth: 260,
-    nodeSpacing: 32,
-    rankSpacing: 52,
-    padding: 10,
-    curve: "linear",
-  },
   elk: {
     lineHops: "arc",
   },
+  // Fallback when a label is still a pixel taller than its foreignObject.
+  themeCSS: `
+    .edgeLabel foreignObject,
+    .node foreignObject {
+      overflow: visible;
+    }
+  `,
 };
 
 function renderDiagrams() {

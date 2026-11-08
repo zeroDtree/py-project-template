@@ -1,31 +1,7 @@
-/* Fit the diagram to the doc column. A native-size ELK chart is wider than the
- * column, and overflow-x then paints a scrollbar under the figure. */
-.md-typeset .mermaid {
-  margin: 1.25rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding: 0.25rem 0;
-}
-
-.md-typeset .mermaid svg {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-/*
- * Mermaid measures an HTML label from the wrapper line-height (1.5 × the
- * diagram font size) and clips the foreignObject to that box. Material
- * `.md-typeset p` uses a taller line-height, so the line after <br> overflows
- * and descenders (g, p, y) are cut off.
- */
+/* VitePress `.vp-doc p` is Material `.md-typeset p` here. Those rules also
+   match HTML labels inside Mermaid foreignObjects, so the drawn boxes are
+   shorter than the text. Reset them so labels fit the size Mermaid measured. */
 .md-typeset .mermaid p {
   margin: 0;
   line-height: 1.5;
-}
-
-.md-typeset .mermaid .nodeLabel,
-.md-typeset .mermaid .edgeLabel {
-  font-family: Inter, "PingFang SC", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
 }
