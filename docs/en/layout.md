@@ -66,4 +66,4 @@ Add these yourself. The generated Ruff and ty configs already ignore the first t
 | --- | --- |
 | `legacy/` | Historical code. Excluded from Ruff and ty. Not gitignored. |
 | `pkgs/` | Third-party or workspace packages. Gitignored. `--mlkit` is the case the template sets up. |
-| `data/` | Datasets and other inputs. Gitignored. Do not commit it. |
+| `data/` | Datasets and other inputs. Gitignored. Do not commit it. Under it: `raw/`, `meta/`, and `processed/`. Rules are in the generated project's `docs/best-practices.md`. |

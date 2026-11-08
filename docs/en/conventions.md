@@ -17,7 +17,7 @@ Identifiers, comments, docstrings, CLI help, and commit messages are in English.
 | `docs/` | Design notes and math write-ups for that project. |
 | `legacy/` | Optional later directory for historical code. Excluded from Ruff and ty. |
 | `pkgs/` | Optional third-party or workspace packages. `--mlkit` clones the pinned `my_pkg_py` here. Treat it as a reference unless you were asked to edit it. |
-| `data/` | Optional later directory for datasets and other inputs. Gitignored. |
+| `data/` | Optional later directory for datasets and other inputs. Gitignored. Under it: `raw/`, `meta/`, and `processed/`. Rules are in the generated project's `docs/best-practices.md`. |
 
 The repo root is the directory that holds `.project-root`. `paths.py` reads it from there.
 

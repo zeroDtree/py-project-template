@@ -66,4 +66,4 @@ my-exp/
 | --- | --- |
 | `legacy/` | 历史代码。Ruff 和 ty 排除。不在 gitignore 里。 |
 | `pkgs/` | 第三方或工作区里的包。被 gitignore。`--mlkit` 是模板准备好的那种用法。 |
-| `data/` | 数据集和其他输入。被 gitignore。不要提交。 |
+| `data/` | 数据集和其他输入。被 gitignore。不要提交。其下为 `raw/`、`meta/`、`processed/`，规则见生成项目的 `docs/best-practices.md`。 |

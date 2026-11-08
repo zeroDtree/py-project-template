@@ -18,9 +18,20 @@ Conventions this project follows. Keep generated code in English even when notes
 | `docs/` | Design notes and math write-ups |
 | `legacy/` | Optional later dir for historical code; excluded from Ruff and ty |
 | `pkgs/` | Optional third-party or workspace packages. `--mlkit` clones this template's pinned `my_pkg_py` here for the `mlkit.pipeline` training loop; treat as reference unless asked to edit |
-| `data/` | Optional later dir for datasets and other input files; gitignored, do not commit |
+| `data/` | Optional later dir for inputs. Gitignored; do not commit. Holds `raw/`, `meta/`, and `processed/` |
 
 Locate the repo with the `.project-root` marker and `paths.py` (`PROJECT_ROOT`, `HYDRA_CONFIG_ROOT`, `ARTIFACT_ROOT`). Do not depend on the process CWD.
+
+### Data
+
+Create `data/` when the project has inputs. The whole directory is gitignored.
+
+```text
+data/
+├── raw/         # as received; leave it unchanged
+├── meta/        # the real sample sheet; may hold sensitive fields; do not commit
+└── processed/   # derived tables later steps read, such as a count matrix; regenerable from raw
+```
 
 ## Python environment
 

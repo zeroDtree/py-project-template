@@ -17,7 +17,7 @@
 | `docs/` | 这个项目自己的设计笔记和数学说明。 |
 | `legacy/` | 以后可以加的历史代码目录。Ruff 和 ty 排除。 |
 | `pkgs/` | 可选的第三方或工作区包。`--mlkit` 把钉住的 `my_pkg_py` 克隆到这里。除非明确要改它，否则把它当参考。 |
-| `data/` | 以后可以加的数据集和其他输入。被 gitignore。 |
+| `data/` | 以后可以加的数据集和其他输入。被 gitignore。其下为 `raw/`、`meta/`、`processed/`，规则见生成项目的 `docs/best-practices.md`。 |
 
 仓库根是放着 `.project-root` 的那一层。`paths.py` 从那里读路径。
 
