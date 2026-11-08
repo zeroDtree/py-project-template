@@ -35,13 +35,22 @@ my-exp = "my_exp.cli:main"
 
 `uv sync` 安装项目和 `dev` 组。之后交互式 shell 可以 `source .venv/bin/activate`。
 
+每个克隆跑一次，把 notebook 过滤器写进 git：
+
+```bash
+uv run nbstripout --install --attributes .gitattributes
+```
+
+之后提交会去掉 notebook 里的输出。`uv run nbstripout --status` 看过滤器在不在。
+
 ## 依赖组
 
 | 组 | 内容 | 用途 |
 | --- | --- | --- |
 | `lint` | pytest、ruff、ty | 测试和质量检查。 |
 | `utils` | tqdm、accelerate | 进度输出和 GPU 启动器。 |
-| `dev` | 上面两组 | `uv sync` 默认会装的内容。 |
+| `notebook` | ipykernel、ipywidgets、nbstripout | 笔记本，以及提交时去掉单元格输出。 |
+| `dev` | 上面各组 | `uv sync` 默认会装的内容。 |
 
 Hydra（`hydra-core`、`omegaconf`）算项目依赖，跟包装在一起。
 

@@ -35,13 +35,22 @@ my-exp = "my_exp.cli:main"
 
 `uv sync` installs the project and the `dev` group. An interactive shell may `source .venv/bin/activate` after that.
 
+Once per clone, register the notebook filter:
+
+```bash
+uv run nbstripout --install --attributes .gitattributes
+```
+
+Commits then strip notebook cell output. `uv run nbstripout --status` shows whether the filter is installed.
+
 ## Dependency groups
 
 | Group | Contains | Used for |
 | --- | --- | --- |
 | `lint` | pytest, ruff, ty | Tests and the quality commands. |
 | `utils` | tqdm, accelerate | Progress output and the GPU launcher. |
-| `dev` | both groups above | What `uv sync` installs by default. |
+| `notebook` | ipykernel, ipywidgets, nbstripout | Notebooks, and stripping cell output on commit. |
+| `dev` | the groups above | What `uv sync` installs by default. |
 
 Hydra (`hydra-core`, `omegaconf`) is a project dependency, so it is installed with the package.
 

@@ -6,7 +6,10 @@ uv run python -m __PACKAGE_NAME__.cli --help
 uv run pytest
 uv run ruff check
 uv run ty check
+uv run nbstripout --install --attributes .gitattributes
 ```
+
+`uv sync` installs the `dev` group, which includes `notebook`. Run the `nbstripout` line once per clone so commits strip notebook cell output. Check with `uv run nbstripout --status`.
 
 CPU (no Accelerate):
 
