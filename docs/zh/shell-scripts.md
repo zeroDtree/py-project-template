@@ -6,6 +6,16 @@
 bash shell_script/run-python.sh --help
 ```
 
+## 初始化检查
+
+创建或克隆之后，在项目根目录：
+
+```bash
+bash shell_script/init-check.sh
+```
+
+脚本会 `uv sync`（安装 `dev` 组），然后跑 `python -m my_exp.cli --help`、pytest、ruff 和 ty，并安装 nbstripout 的 git 过滤器。不在 git 工作树里时跳过过滤器安装。运行前 `export MC_ENABLE_PROXY=1` 会给 `uv sync` 打开 HTTP 代理。
+
 ## 环境变量
 
 | 变量 | 默认 | 用途 |

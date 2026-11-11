@@ -34,11 +34,7 @@ git submodule update --init ai-lorebook
 
 ```bash
 cd /path/to/my-exp
-uv sync
-uv run ruff check
-uv run ty check
-uv run pytest
-uv run python -m my_exp.cli --help
+bash shell_script/init-check.sh
 ```
 
 平时只传 `--name`。导入包名把项目名里的 `-` 和 `.` 换成 `_`，所以 `my-exp` 和 `my.exp` 都导入为 `my_exp`。导入名要另起时才传 `--package`，例如 `--name acme-lab --package lab`。

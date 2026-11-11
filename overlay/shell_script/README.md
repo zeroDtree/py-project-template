@@ -2,6 +2,16 @@
 
 Invoke as `bash shell_script/...` from the **project root**. Scripts then `cd` to the repo via `BASH_SOURCE`.
 
+## Post-init check
+
+After init or clone, from the project root:
+
+```bash
+bash shell_script/init-check.sh
+```
+
+This syncs the `dev` group, runs `python -m __PACKAGE_NAME__.cli --help`, pytest, ruff, and ty, then installs the nbstripout git filter. Outside a git work tree the filter install is skipped. Set `MC_ENABLE_PROXY=1` before the script to enable the HTTP proxy for `uv sync`.
+
 ## Environment variables
 
 | Variable | Default | Description |

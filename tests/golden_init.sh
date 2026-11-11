@@ -53,11 +53,7 @@ if [[ -e "$BASE/.cursor" || -e "$BASE/.claude" || -d "$BASE/.github/instructions
 fi
 (
 	cd "$BASE"
-	uv sync
-	uv run ruff check
-	uv run ty check
-	uv run pytest
-	uv run python -m golden_exp.cli --help
+	bash shell_script/init-check.sh
 )
 
 echo "==> dotted project name derives the import package"

@@ -6,6 +6,16 @@ Run scripts from the project root as `bash shell_script/...`. Each runner then `
 bash shell_script/run-python.sh --help
 ```
 
+## Post-init check
+
+After init or clone, from the project root:
+
+```bash
+bash shell_script/init-check.sh
+```
+
+This syncs the `dev` group, runs `python -m my_exp.cli --help`, pytest, ruff, and ty, then installs the nbstripout git filter. Outside a git work tree the filter install is skipped. Set `MC_ENABLE_PROXY=1` before the script to enable the HTTP proxy for `uv sync`.
+
 ## Environment variables
 
 | Variable | Default | Used by |

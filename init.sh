@@ -312,11 +312,7 @@ Created project at $DEST
 
 Next:
   cd $DEST
-  uv sync
-  uv run ruff check
-  uv run ty check
-  uv run pytest
-  uv run python -m $PACKAGE.cli --help
+  bash shell_script/init-check.sh
 EOF
 
 if [[ "$USE_MLKIT" -eq 1 && "$NO_GIT" -eq 0 ]]; then
@@ -324,6 +320,6 @@ if [[ "$USE_MLKIT" -eq 1 && "$NO_GIT" -eq 0 ]]; then
 
 mlkit is a submodule at pkgs/my_pkg_py (pinned).
 .gitmodules and pkgs/my_pkg_py are staged. Include them in the first commit, then push.
-Collaborators: git clone --recurse-submodules, then uv sync.
+Collaborators: git clone --recurse-submodules, then bash shell_script/init-check.sh.
 EOF
 fi

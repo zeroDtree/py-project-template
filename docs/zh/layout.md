@@ -14,6 +14,7 @@ my-exp/
 ├── tests/                      # pytest，与包的布局对应
 ├── docs/                       # 约定和笔记
 ├── shell_script/               # CPU / GPU 启动、邮件、文件同步、HPC
+│   ├── init-check.sh
 │   ├── run-python.sh
 │   ├── mc-run-python.sh
 │   ├── file_sync/

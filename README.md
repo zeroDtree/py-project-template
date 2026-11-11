@@ -62,6 +62,7 @@ my-exp/
 ├── tests/                      # pytest, mirrored to the package layout
 ├── docs/                       # conventions and notes
 ├── shell_script/               # CPU / GPU runners, email, file sync, HPC helpers
+│   ├── init-check.sh
 │   ├── run-python.sh
 │   ├── mc-run-python.sh
 │   ├── file_sync/
