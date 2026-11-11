@@ -199,7 +199,7 @@ mlkit_url() {
 clone_mlkit() {
 	local src="$TEMPLATE_ROOT/my_pkg_py"
 	local dest_pkg="$DEST/pkgs/my_pkg_py"
-	local pin actual url origin rewritten to_https
+	local pin actual url origin rewritten to_https short subject
 
 	if [[ ! -d "$OVERLAY_MLKIT" ]]; then
 		echo "Error: overlay_mlkit directory is missing: $OVERLAY_MLKIT" >&2
@@ -214,12 +214,15 @@ clone_mlkit() {
 	pin="$(git -C "$src" rev-parse HEAD)"
 	mkdir -p "$DEST/pkgs"
 	git clone "$src" "$dest_pkg"
-	git -C "$dest_pkg" checkout --detach "$pin"
+	git -C "$dest_pkg" checkout --detach --quiet "$pin"
 	actual="$(git -C "$dest_pkg" rev-parse HEAD)"
 	if [[ "$actual" != "$pin" ]]; then
 		echo "Error: cloned my_pkg_py HEAD $actual does not match pin $pin" >&2
 		exit 1
 	fi
+	short="$(git -C "$dest_pkg" rev-parse --short=7 HEAD)"
+	subject="$(git -C "$dest_pkg" log -1 --format=%s)"
+	printf 'Pinned pkgs/my_pkg_py at %s ("%s")\n' "$short" "$subject"
 
 	url="$(mlkit_url)"
 	origin="$(git -C "$TEMPLATE_ROOT" remote get-url origin 2>/dev/null || true)"
