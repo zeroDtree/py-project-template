@@ -60,6 +60,38 @@ fi
 	uv run python -m golden_exp.cli --help
 )
 
+echo "==> dotted project name derives the import package"
+DOTTED="$TMP/dotted"
+"$ROOT/init.sh" --dest "$DOTTED" --name my.exp --no-git
+[[ -d "$DOTTED/src/my_exp" ]]
+uv_python - "$DOTTED/pyproject.toml" <<'PY'
+import sys
+import tomllib
+from pathlib import Path
+
+data = tomllib.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert data["project"]["name"] == "my.exp", data["project"]["name"]
+assert data["project"]["scripts"]["my.exp"] == "my_exp.cli:main", data["project"]["scripts"]
+assert data["tool"]["hatch"]["build"]["targets"]["wheel"]["packages"] == ["src/my_exp"]
+print("dotted name ok")
+PY
+
+echo "==> --package overrides the derived import name"
+OVERRIDE="$TMP/override"
+"$ROOT/init.sh" --dest "$OVERRIDE" --name acme-lab --package lab --no-git
+[[ -d "$OVERRIDE/src/lab" ]]
+uv_python - "$OVERRIDE/pyproject.toml" <<'PY'
+import sys
+import tomllib
+from pathlib import Path
+
+data = tomllib.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert data["project"]["name"] == "acme-lab", data["project"]["name"]
+assert data["project"]["scripts"]["acme-lab"] == "lab.cli:main", data["project"]["scripts"]
+assert data["tool"]["hatch"]["build"]["targets"]["wheel"]["packages"] == ["src/lab"]
+print("package override ok")
+PY
+
 echo "==> --mlkit pin and TOML"
 if submodule_ok my_pkg_py; then
 	MLKIT="$TMP/golden-mlkit"

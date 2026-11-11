@@ -3,7 +3,7 @@
 `init.sh` copies `overlay/` into an empty directory, replaces placeholders, and optionally adds mlkit or AI editor rules.
 
 ```bash
-./init.sh --dest PATH [--name NAME] [--package PKG] [--python VERSION]
+./init.sh --dest PATH [--name NAME] [--python VERSION]
            [--mlkit] [--lorebook] [--https] [--no-git]
 ```
 
@@ -13,7 +13,7 @@
 | --- | --- |
 | `--dest PATH` | New project directory. Required. Created if missing. Must be empty if it already exists. |
 | `--name NAME` | Project name. Default: the destination directory's basename. |
-| `--package PKG` | Import package name. Default: `NAME` with `-` replaced by `_`. |
+| `--package PKG` | Override the import package. Default: replace `-` and `.` in `NAME` with `_`. |
 | `--python VERSION` | Python version. Default: `3.12`. |
 | `--mlkit` | Clone the pinned `my_pkg_py` submodule into `pkgs/` and scaffold the training pipeline. |
 | `--lorebook` | Copy Cursor, Copilot, and Claude rules. Off by default. |
@@ -23,8 +23,8 @@
 
 ## Names
 
-- Project name: starts and ends with a letter or digit. The middle may also contain `.`, `_`, and `-`. Example: `my-exp`.
-- Package name: a Python identifier, so letters, digits, and `_`, not starting with a digit. Example: `my_exp`.
+- Project name: starts and ends with a letter or digit. The middle may also contain `.`, `_`, and `-`. Example: `my-exp`. Pass `--name` only; it defaults to the destination directory's basename.
+- Package name: a Python identifier, so letters, digits, and `_`, not starting with a digit. Derived from the project name by replacing `-` and `.` with `_`, so `my-exp` and `my.exp` both import as `my_exp`. Pass `--package` when the import name should differ, for example `--name acme-lab --package lab`.
 - Python version: `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`, such as `3.12` or `3.12.1`.
 
 The script derives two more values from that version:
@@ -67,7 +67,7 @@ These strings are replaced in text files under the destination:
 | Token | Replaced with |
 | --- | --- |
 | `__PROJECT_NAME__` | `--name` |
-| `__PACKAGE_NAME__` | `--package` |
+| `__PACKAGE_NAME__` | import package (`--package`, or derived from `--name`) |
 | `__PYTHON_VERSION__` | `--python` |
 | `__PYTHON_TAG__` | `py` + major + minor |
 | `__PYTHON_NEXT__` | the next minor version |

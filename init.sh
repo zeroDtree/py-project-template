@@ -4,8 +4,11 @@
 # Initialize a new Python project from this template.
 #
 # Usage:
-#   ./init.sh --dest PATH [--name NAME] [--package PKG] [--python VERSION]
+#   ./init.sh --dest PATH [--name NAME] [--python VERSION]
 #              [--mlkit] [--lorebook] [--https] [--no-git]
+#
+# The import package is derived from --name ('-' and '.' become '_').
+# --package overrides that name when the import should differ.
 #
 # This script only creates new projects. The destination must not exist,
 # or must be an empty directory. uv is required; it provides Python 3.12.
@@ -28,7 +31,7 @@
 # @help-options-begin
 #   --dest PATH             destination directory for the new project (required)
 #   --name NAME             project name (default: destination basename)
-#   --package PKG           import package name (default: NAME with '-' -> '_')
+#   --package PKG           override import package (default: '-' and '.' in NAME -> '_')
 #   --python VERSION        Python version (default: 3.12)
 #   --mlkit                 clone pinned my_pkg_py into pkgs/ and scaffold mlkit
 #   --lorebook              copy AI rules from ai-lorebook (off by default)
@@ -151,7 +154,7 @@ if [[ -z "$NAME" ]]; then
 	NAME="$(basename "$DEST")"
 fi
 if [[ -z "$PACKAGE" ]]; then
-	PACKAGE="${NAME//-/_}"
+	PACKAGE="${NAME//[-.]/_}"
 fi
 
 if [[ ! "$NAME" =~ ^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$ ]]; then

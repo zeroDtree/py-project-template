@@ -41,7 +41,7 @@ uv run pytest
 uv run python -m my_exp.cli --help
 ```
 
-`--package` defaults to the project name with `-` replaced by `_`, so `my-exp` imports as `my_exp`.
+Pass `--name` only. The import package replaces `-` and `.` in that name with `_`, so `my-exp` and `my.exp` both import as `my_exp`. Pass `--package` when the import name should differ, for example `--name acme-lab --package lab`.
 
 Other flags are listed on the [init.sh](init.md) page:
 

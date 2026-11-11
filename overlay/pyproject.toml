@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-__PROJECT_NAME__ = "__PACKAGE_NAME__.cli:main"
+"__PROJECT_NAME__" = "__PACKAGE_NAME__.cli:main"
 
 [dependency-groups]
 lint = ["pytest", "ruff", "ty"]

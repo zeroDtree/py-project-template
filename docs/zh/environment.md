@@ -30,7 +30,7 @@ uv run pytest
 
 ```toml
 [project.scripts]
-my-exp = "my_exp.cli:main"
+"my-exp" = "my_exp.cli:main"
 ```
 
 `uv sync` 安装项目和 `dev` 组。之后交互式 shell 可以 `source .venv/bin/activate`。

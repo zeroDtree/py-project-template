@@ -41,7 +41,7 @@ uv run pytest
 uv run python -m my_exp.cli --help
 ```
 
-`--package` 默认把项目名里的 `-` 换成 `_`。`my-exp` 的导入名是 `my_exp`。
+平时只传 `--name`。导入包名把项目名里的 `-` 和 `.` 换成 `_`，所以 `my-exp` 和 `my.exp` 都导入为 `my_exp`。导入名要另起时才传 `--package`，例如 `--name acme-lab --package lab`。
 
 别的参数在 [init.sh](init.md)：
 

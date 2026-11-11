@@ -30,7 +30,7 @@ uv run pytest
 
 ```toml
 [project.scripts]
-my-exp = "my_exp.cli:main"
+"my-exp" = "my_exp.cli:main"
 ```
 
 `uv sync` installs the project and the `dev` group. An interactive shell may `source .venv/bin/activate` after that.

@@ -75,7 +75,9 @@ my-exp/
 └── README.md
 ```
 
-`--package` defaults to the project name with `-` replaced by `_` (`my-exp` → `my_exp`). Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` clones the pinned `my_pkg_py` submodule into `pkgs/` (gitignored in the new project).
+Pass `--name` only. It is the distribution name and the console script. The import package replaces `-` and `.` in that name with `_`, so `my-exp` and `my.exp` both live in `src/my_exp`. Pass `--package` when the import name should differ, for example `--name acme-lab --package lab`.
+
+Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` clones the pinned `my_pkg_py` submodule into `pkgs/` (gitignored in the new project).
 
 ## Documentation
 

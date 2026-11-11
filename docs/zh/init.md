@@ -3,7 +3,7 @@
 `init.sh` 把 `overlay/` 复制到空目录，换掉占位符，需要时再带上 mlkit 或 AI 编辑器规则。
 
 ```bash
-./init.sh --dest PATH [--name NAME] [--package PKG] [--python VERSION]
+./init.sh --dest PATH [--name NAME] [--python VERSION]
            [--mlkit] [--lorebook] [--https] [--no-git]
 ```
 
@@ -13,7 +13,7 @@
 | --- | --- |
 | `--dest PATH` | 新项目目录。必填。路径不存在时会创建。已经存在则必须是空目录。 |
 | `--name NAME` | 项目名。默认是目标目录的最后一段。 |
-| `--package PKG` | 导入用的包名。默认把 `NAME` 里的 `-` 换成 `_`。 |
+| `--package PKG` | 覆盖导入包名。默认把 `NAME` 里的 `-` 和 `.` 换成 `_`。 |
 | `--python VERSION` | Python 版本。默认 `3.12`。 |
 | `--mlkit` | 把钉住的 `my_pkg_py` 子模块克隆到 `pkgs/`，并搭上训练流水线。 |
 | `--lorebook` | 复制 Cursor、Copilot 和 Claude 的规则。默认关闭。 |
@@ -23,8 +23,8 @@
 
 ## 名字
 
-- 项目名：以字母或数字开头和结尾，中间还可以有 `.`、`_`、`-`。例如 `my-exp`。
-- 包名：Python 标识符，由字母、数字和 `_` 组成，不能以数字开头。例如 `my_exp`。
+- 项目名：以字母或数字开头和结尾，中间还可以有 `.`、`_`、`-`。例如 `my-exp`。平时只传 `--name`；省略时用目标目录的最后一段。
+- 包名：Python 标识符，由字母、数字和 `_` 组成，不能以数字开头。由项目名把 `-` 和 `.` 换成 `_` 得到，所以 `my-exp` 和 `my.exp` 都导入为 `my_exp`。导入名要另起时才传 `--package`，例如 `--name acme-lab --package lab`。
 - Python 版本：`主版本.次版本` 或 `主版本.次版本.补丁`，例如 `3.12` 或 `3.12.1`。
 
 版本号还会推出两个值：
@@ -67,7 +67,7 @@ flowchart TD
 | 占位符 | 替换成 |
 | --- | --- |
 | `__PROJECT_NAME__` | `--name` |
-| `__PACKAGE_NAME__` | `--package` |
+| `__PACKAGE_NAME__` | 导入包名（`--package`，否则由 `--name` 推导） |
 | `__PYTHON_VERSION__` | `--python` |
 | `__PYTHON_TAG__` | `py` + 主版本 + 次版本 |
 | `__PYTHON_NEXT__` | 下一个次版本 |
