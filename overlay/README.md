@@ -1,5 +1,9 @@
 # __PROJECT_NAME__
 
+```bash
+git clone --recurse-submodules <this-repo>
+```
+
 From the project root, after init or clone:
 
 ```bash

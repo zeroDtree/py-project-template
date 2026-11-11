@@ -16,36 +16,7 @@ SKIP_DIRS = {".git", ".venv", "__pycache__"}
 _BARE_KEY = re.compile(r"^[A-Za-z0-9_-]+$")
 _SSH_SCP = re.compile(r"^git@([^:]+):(.+)$")
 _SSH_URL = re.compile(r"^ssh://git@([^/]+)/(.+)$")
-
-MLKIT_README = """
-
-## mlkit training
-
-This project uses the `mlkit` training pipeline from `pkgs/my_pkg_py` (uv editable), cloned at this template's submodule commit. That clone is gitignored.
-
-```bash
-uv run python -m {package}.cli
-bash shell_script/mc-run-python.sh {package}.cli
-```
-
-To depend on GitHub instead of the local clone, replace the `mlkit` path source in `pyproject.toml` with `git+https://github.com/zeroDtree/my_pkg_py`.
-"""
-
-MLKIT_README_TRACKED = """
-
-## mlkit training
-
-This project uses the `mlkit` training pipeline from the `pkgs/my_pkg_py` submodule (uv editable). The pinned commit is recorded in this repository.
-
-```bash
-git clone --recurse-submodules <this-repo>
-uv sync
-uv run python -m {package}.cli
-bash shell_script/mc-run-python.sh {package}.cli
-```
-
-If that clone has no submodule checkout, run `git submodule update --init pkgs/my_pkg_py` before `uv sync`.
-"""
+_SNIPPETS = Path(__file__).resolve().parent / "snippets"
 
 
 def rewrite_git_url(url: str, *, to_https: bool) -> str:
@@ -176,8 +147,8 @@ def add_mlkit_pyproject(path: Path) -> None:
 
 
 def append_mlkit_readme(path: Path, package_name: str, *, tracked: bool = False) -> None:
-    template = MLKIT_README_TRACKED if tracked else MLKIT_README
-    extra = template.format(package=package_name)
+    name = "mlkit-readme-tracked.md" if tracked else "mlkit-readme.md"
+    extra = (_SNIPPETS / name).read_text(encoding="utf-8").format(package=package_name)
     path.write_text(path.read_text(encoding="utf-8") + extra, encoding="utf-8")
 
 
