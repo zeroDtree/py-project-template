@@ -48,7 +48,7 @@ my-exp/
 
 - 包里多出 `src/my_exp/train.py`、`data.py`、`model.py`、`utils_for_main.py`。`cli.py` 改去调用 `train.run`。
 - `configs/hydra/` 多出 `model/`、`dataset/`、`optimizer/`、`wandb/`。
-- `pkgs/my_pkg_py` 是一次 git 克隆，提交钉在模板子模块当前的 commit。新项目把整个 `pkgs/` 放进 gitignore。
+- `pkgs/my_pkg_py` 是新项目的 submodule，提交钉在 init 时模板子模块的 commit。pin 记在新项目里。`pkgs/` 下其它路径仍在 gitignore 里。
 
 `--lorebook` 复制编辑器规则：
 
@@ -65,5 +65,5 @@ my-exp/
 | 路径 | 作用 |
 | --- | --- |
 | `legacy/` | 历史代码。Ruff 和 ty 排除。不在 gitignore 里。 |
-| `pkgs/` | 第三方或工作区里的包。被 gitignore。`--mlkit` 是模板准备好的那种用法。 |
+| `pkgs/` | 第三方或工作区里的包。被 gitignore。`--mlkit` 把 `pkgs/my_pkg_py` 登记为 submodule，并跟踪这条路径。 |
 | `data/` | 数据集和其他输入。被 gitignore。不要提交。其下为 `raw/`、`meta/`、`processed/`，规则见生成项目的 `docs/best-practices.md`。 |

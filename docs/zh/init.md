@@ -15,10 +15,10 @@
 | `--name NAME` | 项目名。默认是目标目录的最后一段。 |
 | `--package PKG` | 覆盖导入包名。默认把 `NAME` 里的 `-` 和 `.` 换成 `_`。 |
 | `--python VERSION` | Python 版本。默认 `3.12`。 |
-| `--mlkit` | 把钉住的 `my_pkg_py` 子模块克隆到 `pkgs/`，并搭上训练流水线。 |
+| `--mlkit` | 把钉住的 `my_pkg_py` 子模块克隆到 `pkgs/`，并搭上训练流水线。没传 `--no-git` 时，把这次检出登记为新项目的 submodule。 |
 | `--lorebook` | 复制 Cursor、Copilot 和 Claude 的规则。默认关闭。 |
-| `--https` | `pkgs/my_pkg_py` 的 origin 使用 HTTPS。模板自己的 `origin` 已经是 `http://` 或 `https://` 时也会改写。 |
-| `--no-git` | 不在目标目录执行 `git init`。 |
+| `--https` | `pkgs/my_pkg_py` 的 origin 使用 HTTPS。登记了 submodule 时，`.gitmodules` 里的 URL 同样改写。模板自己的 `origin` 已经是 `http://` 或 `https://` 时也会改写。 |
+| `--no-git` | 不在目标目录执行 `git init`。带了 `--mlkit` 时，pin 不会记下来。 |
 | `-h`、`--help` | 打印注释里的帮助并退出。 |
 
 ## 名字
@@ -48,17 +48,19 @@ flowchart TD
   lore -->|是| rules["ai-lorebook/apply.sh"]
   lore -->|否| git["git init -b main<br/>除非 --no-git"]
   rules --> git
+  git --> record{"--mlkit 且没有 --no-git?"}
+  record -->|是| link["写入 .gitmodules<br/>暂存 gitlink"]
 ```
 
 1. 缺少 `--dest`、路径不是目录、或目录里已经有文件，就退出。
 2. `PATH` 上要能找到 `uv`。
 3. 把 `overlay/` 复制到目标目录。
-4. 带了 `--mlkit` 时，把本仓库的 `my_pkg_py` 检出克隆到 `pkgs/my_pkg_py`，再把 `overlay_mlkit/` 盖上去。克隆的提交会和子模块的 pin 比对。
+4. 带了 `--mlkit` 时，把本仓库的 `my_pkg_py` 检出克隆到 `pkgs/my_pkg_py`，把这次克隆 detach 到模板 pin，再把 `overlay_mlkit/` 盖上去。克隆的提交和 pin 对不上就退出。
 5. 把 `src/__PACKAGE_NAME__` 改名为 `src/<package>`。
-6. 跑 `scaffold.py finalize`：替换占位符。带 `--mlkit` 时还改 `pyproject.toml`，并在 `README.md` 末尾加上 mlkit 说明。
+6. 跑 `scaffold.py finalize`：替换占位符。带 `--mlkit` 时还改 `pyproject.toml`，并在 `README.md` 末尾加上 mlkit 说明。接下来会 `git init` 时，finalize 还带 `--track-mlkit`：不再忽略 `pkgs/my_pkg_py`，README 里改成 submodule 说明。
 7. 带 `--lorebook` 时，跑 `ai-lorebook/apply.sh -d DEST -f`。
 8. 给 shell 脚本加上可执行权限。
-9. 没传 `--no-git` 就执行 `git init -b main`。
+9. 没传 `--no-git` 就执行 `git init -b main`。带了 `--mlkit` 时，用克隆的 origin 写 `.gitmodules`，把 `pkgs/my_pkg_py` 的 gitlink 按 pin 暂存，再跑 `git submodule absorbgitdirs`。`--no-git` 保留本地克隆，并警告 pin 不会记进这个仓库。
 
 ## 占位符
 
@@ -76,11 +78,11 @@ flowchart TD
 
 ## HTTPS 远程地址
 
-`--mlkit` 把新克隆的 `origin` 设成 `.gitmodules` 里的子模块 URL（文件没另写时是 `git@github.com:zeroDtree/my_pkg_py.git`）。
+`--mlkit` 把新克隆的 `origin` 设成模板 `.gitmodules` 里的子模块 URL（文件没另写时是 `git@github.com:zeroDtree/my_pkg_py.git`）。新项目登记 submodule 时，自己的 `.gitmodules` 记下同一个 URL。
 
 下面任一成立，这个 URL 就改成 HTTPS：
 
 - 传了 `--https`
 - 模板仓库自己的 `origin` 已经以 `http://` 或 `https://` 开头
 
-`git@host:path` 和 `ssh://git@host/path` 变成 `https://host/path`。本来就是 HTTP 或 HTTPS 的地址保持原样。这个 remote 只在 `--mlkit` 的克隆上有，`--https` 也只作用在那里。
+`git@host:path` 和 `ssh://git@host/path` 变成 `https://host/path`。本来就是 HTTP 或 HTTPS 的地址保持原样。

@@ -48,7 +48,7 @@ Runners and Hydra create `artifacts/` when something writes output.
 
 - `src/my_exp/train.py`, `data.py`, `model.py`, and `utils_for_main.py` join the package. `cli.py` then calls `train.run`.
 - `configs/hydra/` gains `model/`, `dataset/`, `optimizer/`, and `wandb/`.
-- `pkgs/my_pkg_py` is a git clone pinned to the template submodule's current commit. `pkgs/` is gitignored in the new project.
+- `pkgs/my_pkg_py` is a submodule pinned to the template submodule's commit at init. The pin is stored in the new project. Other paths under `pkgs/` stay gitignored.
 
 `--lorebook` copies editor rules.
 
@@ -65,5 +65,5 @@ Add these yourself. The generated Ruff and ty configs already ignore the first t
 | Path | Role |
 | --- | --- |
 | `legacy/` | Historical code. Excluded from Ruff and ty. Not gitignored. |
-| `pkgs/` | Third-party or workspace packages. Gitignored. `--mlkit` is the case the template sets up. |
+| `pkgs/` | Third-party or workspace packages. Gitignored. `--mlkit` registers `pkgs/my_pkg_py` as a submodule and tracks that path. |
 | `data/` | Datasets and other inputs. Gitignored. Do not commit it. Under it: `raw/`, `meta/`, and `processed/`. Rules are in the generated project's `docs/best-practices.md`. |

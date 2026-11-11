@@ -11,16 +11,16 @@ Pass `--https` when the new clone's `origin` should be HTTPS. The flag is also a
 
 ## Files
 
-- `pkgs/my_pkg_py` is a git clone of the submodule checkout. `init.sh` compares the clone's `HEAD` to the submodule commit and exits if they differ. `pkgs/` is gitignored, so the pin lives in the template repo.
+- `pkgs/my_pkg_py` is a submodule of the new project. `init.sh` detaches the checkout at the template pin and exits if that commit does not match. The pin is this repository's gitlink. Other paths under `pkgs/` stay gitignored.
 - `overlay_mlkit/` is copied over the base overlay. That adds `train.py`, `data.py`, `model.py`, `utils_for_main.py`, and Hydra configs for the model, dataset, optimizer, and W&B.
-- `scaffold.py` appends an `mlkit` dependency and a uv path source, then appends a short mlkit section to `README.md`.
+- `scaffold.py` appends an `mlkit` dependency and a uv path source, un-ignores the submodule path, and appends a short mlkit section to `README.md`.
 
 ```toml
 [tool.uv.sources]
 mlkit = { path = "pkgs/my_pkg_py", editable = true }
 ```
 
-The import name is `mlkit`. The checkout stays on the commit recorded by this template's submodule.
+The import name is `mlkit`. The checkout stays on the commit this template's submodule records at init time. That commit is the new project's gitlink.
 
 ## Training
 
@@ -40,4 +40,13 @@ bash shell_script/mc-run-python.sh my_exp.cli
 
 ## GitHub
 
-To use the GitHub repo, replace the `mlkit` path source in `pyproject.toml` with `git+https://github.com/zeroDtree/my_pkg_py`.
+`.gitmodules` records the `my_pkg_py` URL, and the index records the pinned commit. Include `.gitmodules` and `pkgs/my_pkg_py` in the first commit, then push. GitHub shows the submodule at that commit.
+
+Collaborators clone the experiment repository with submodules, then sync:
+
+```bash
+git clone --recurse-submodules <experiment-repo>
+uv sync
+```
+
+`uv sync` installs the editable checkout that is already on disk. Populate `pkgs/my_pkg_py` with `git clone --recurse-submodules`, or with `git submodule update --init pkgs/my_pkg_py` when the clone omitted it, before running `uv sync`.

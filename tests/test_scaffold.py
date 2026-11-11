@@ -104,6 +104,88 @@ class PyprojectTests(unittest.TestCase):
             self.assertEqual(again["project"]["dependencies"].count("mlkit"), 1)
             self.assertEqual(again["tool"]["uv"]["sources"]["mlkit"], source)
 
+    def test_unignore_mlkit_submodule_rewrites_pkgs_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".gitignore"
+            path.write_text("# keep\n/pkgs/\n", encoding="utf-8")
+            scaffold.unignore_mlkit_submodule(path)
+            self.assertEqual(path.read_text(encoding="utf-8"), "# keep\n/pkgs/*\n!/pkgs/my_pkg_py\n")
+
+    def test_unignore_mlkit_submodule_accepts_missing_trailing_newline(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".gitignore"
+            path.write_text("# keep\n/pkgs/", encoding="utf-8")
+            scaffold.unignore_mlkit_submodule(path)
+            self.assertEqual(path.read_text(encoding="utf-8"), "# keep\n/pkgs/*\n!/pkgs/my_pkg_py\n")
+
+    def test_unignore_mlkit_submodule_requires_pkgs_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".gitignore"
+            path.write_text("# no pkgs rule\n", encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                scaffold.unignore_mlkit_submodule(path)
+
+    def test_finalize_track_mlkit_updates_gitignore_and_readme(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp)
+            self._replaced_overlay(dest)
+            (dest / ".gitignore").write_text("# keep\n/pkgs/\n", encoding="utf-8")
+            (dest / "README.md").write_text("# __PROJECT_NAME__\n", encoding="utf-8")
+            scaffold.finalize(
+                dest,
+                project_name="golden-exp",
+                package_name="golden_exp",
+                python_version="3.12",
+                python_tag="py312",
+                python_next="3.13",
+                use_mlkit=True,
+                track_mlkit=True,
+            )
+            gitignore = (dest / ".gitignore").read_text(encoding="utf-8")
+            self.assertEqual(gitignore, "# keep\n/pkgs/*\n!/pkgs/my_pkg_py\n")
+            readme = (dest / "README.md").read_text(encoding="utf-8")
+            self.assertIn("# golden-exp\n", readme)
+            self.assertIn("pkgs/my_pkg_py` submodule", readme)
+            self.assertIn("--recurse-submodules", readme)
+            self.assertNotIn("gitignored", readme)
+            self.assertNotIn("git+https://", readme)
+            data = tomllib.loads((dest / "pyproject.toml").read_text(encoding="utf-8"))
+            self.assertEqual(data["tool"]["uv"]["sources"]["mlkit"]["path"], "pkgs/my_pkg_py")
+
+    def test_finalize_mlkit_without_tracking_keeps_local_clone_note(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp)
+            self._replaced_overlay(dest)
+            (dest / ".gitignore").write_text("/pkgs/\n", encoding="utf-8")
+            (dest / "README.md").write_text("# demo\n", encoding="utf-8")
+            scaffold.finalize(
+                dest,
+                project_name="golden-exp",
+                package_name="golden_exp",
+                python_version="3.12",
+                python_tag="py312",
+                python_next="3.13",
+                use_mlkit=True,
+            )
+            self.assertEqual((dest / ".gitignore").read_text(encoding="utf-8"), "/pkgs/\n")
+            readme = (dest / "README.md").read_text(encoding="utf-8")
+            self.assertIn("gitignored", readme)
+            self.assertNotIn("--recurse-submodules", readme)
+
+    def test_track_mlkit_requires_mlkit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(SystemExit):
+                scaffold.finalize(
+                    Path(tmp),
+                    project_name="golden-exp",
+                    package_name="golden_exp",
+                    python_version="3.12",
+                    python_tag="py312",
+                    python_next="3.13",
+                    use_mlkit=False,
+                    track_mlkit=True,
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

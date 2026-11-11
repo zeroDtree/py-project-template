@@ -13,8 +13,10 @@
 # This script only creates new projects. The destination must not exist,
 # or must be an empty directory. uv is required; it provides Python 3.12.
 #
-# --mlkit copies the pinned my_pkg_py submodule into pkgs/ (gitignored)
-# and scaffolds the mlkit training pipeline. Requires:
+# --mlkit copies the pinned my_pkg_py submodule into pkgs/ and scaffolds the
+# mlkit training pipeline. Unless --no-git, that checkout is registered as a
+# submodule of the new project, so the pin is stored in .gitmodules and the
+# gitlink. Requires:
 #   git submodule update --init my_pkg_py
 #
 # --lorebook copies Cursor / Copilot / Claude rules via ai-lorebook/apply.sh.
@@ -22,7 +24,8 @@
 #   git submodule update --init ai-lorebook
 #
 # --https rewrites the pkgs/my_pkg_py origin to HTTPS. Also used automatically
-# when this template's origin remote is already HTTPS.
+# when this template's origin remote is already HTTPS. The same URL is written
+# to .gitmodules when the submodule is registered.
 #
 # After init, install dependencies from the new project root:
 #   cd PATH && uv sync
@@ -33,10 +36,10 @@
 #   --name NAME             project name (default: destination basename)
 #   --package PKG           override import package (default: '-' and '.' in NAME -> '_')
 #   --python VERSION        Python version (default: 3.12)
-#   --mlkit                 clone pinned my_pkg_py into pkgs/ and scaffold mlkit
+#   --mlkit                 clone pinned my_pkg_py into pkgs/ as a submodule and scaffold mlkit
 #   --lorebook              copy AI rules from ai-lorebook (off by default)
 #   --https                 use HTTPS for the pkgs/my_pkg_py origin URL
-#   --no-git                skip git init in the destination
+#   --no-git                skip git init; with --mlkit the pin is not recorded
 #   -h, --help              show help
 # @help-options-end
 
@@ -211,6 +214,7 @@ clone_mlkit() {
 	pin="$(git -C "$src" rev-parse HEAD)"
 	mkdir -p "$DEST/pkgs"
 	git clone "$src" "$dest_pkg"
+	git -C "$dest_pkg" checkout --detach "$pin"
 	actual="$(git -C "$dest_pkg" rev-parse HEAD)"
 	if [[ "$actual" != "$pin" ]]; then
 		echo "Error: cloned my_pkg_py HEAD $actual does not match pin $pin" >&2
@@ -232,6 +236,19 @@ clone_mlkit() {
 	fi
 	git -C "$dest_pkg" remote set-url origin "$rewritten"
 	cp -a "$OVERLAY_MLKIT/." "$DEST/"
+}
+
+register_mlkit_submodule() {
+	local dest_pkg="$DEST/pkgs/my_pkg_py"
+	local pin url
+
+	pin="$(git -C "$dest_pkg" rev-parse HEAD)"
+	url="$(git -C "$dest_pkg" remote get-url origin)"
+	git config -f "$DEST/.gitmodules" submodule.my_pkg_py.path pkgs/my_pkg_py
+	git config -f "$DEST/.gitmodules" submodule.my_pkg_py.url "$url"
+	git -C "$DEST" add -- .gitmodules
+	git -C "$DEST" update-index --add --cacheinfo "160000,${pin},pkgs/my_pkg_py"
+	git -C "$DEST" submodule absorbgitdirs -- pkgs/my_pkg_py
 }
 
 cp -a "$OVERLAY/." "$DEST/"
@@ -256,6 +273,9 @@ finalize_args=(
 )
 if [[ "$USE_MLKIT" -eq 1 ]]; then
 	finalize_args+=(--mlkit)
+	if [[ "$NO_GIT" -eq 0 ]]; then
+		finalize_args+=(--track-mlkit)
+	fi
 fi
 uv_python "$SCAFFOLD_PY" "${finalize_args[@]}"
 
@@ -273,8 +293,15 @@ chmod +x "$DEST/shell_script/"*.sh 2>/dev/null || true
 chmod +x "$DEST/shell_script/hpc/"*.sh 2>/dev/null || true
 chmod +x "$DEST/shell_script/file_sync/"*.sh 2>/dev/null || true
 
+if [[ "$USE_MLKIT" -eq 1 && "$NO_GIT" -eq 1 ]]; then
+	echo "Warning: --no-git does not register pkgs/my_pkg_py as a submodule. The pin will not be recorded in this repo." >&2
+fi
+
 if [[ "$NO_GIT" -eq 0 ]]; then
 	git -C "$DEST" init -b main >/dev/null
+	if [[ "$USE_MLKIT" -eq 1 ]]; then
+		register_mlkit_submodule
+	fi
 fi
 
 cat <<EOF
@@ -288,3 +315,12 @@ Next:
   uv run pytest
   uv run python -m $PACKAGE.cli --help
 EOF
+
+if [[ "$USE_MLKIT" -eq 1 && "$NO_GIT" -eq 0 ]]; then
+	cat <<EOF
+
+mlkit is a submodule at pkgs/my_pkg_py (pinned).
+.gitmodules and pkgs/my_pkg_py are staged. Include them in the first commit, then push.
+Collaborators: git clone --recurse-submodules, then uv sync.
+EOF
+fi

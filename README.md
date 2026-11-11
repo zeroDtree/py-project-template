@@ -21,9 +21,9 @@ Scaffold into an empty directory. `--name` defaults to the destination basename:
 
 The default layout has no training pipeline and no AI editor rules. Optional flags:
 
-- `--mlkit` clones the pinned `my_pkg_py` submodule into gitignored `pkgs/my_pkg_py` and scaffolds the mlkit training pipeline.
+- `--mlkit` clones the pinned `my_pkg_py` submodule into `pkgs/my_pkg_py`, registers it as a submodule of the new project, and scaffolds the mlkit training pipeline.
 - `--lorebook` copies Cursor / Copilot / Claude rules via `ai-lorebook/apply.sh`.
-- `--https` sets the `pkgs/my_pkg_py` origin to HTTPS. Also applied automatically when this template's `origin` is already HTTPS.
+- `--https` sets the `pkgs/my_pkg_py` origin to HTTPS, including the URL recorded in `.gitmodules`. Also applied automatically when this template's `origin` is already HTTPS.
 
 ```bash
 ./init.sh --dest /path/to/my-exp --name my-exp --mlkit
@@ -77,7 +77,7 @@ my-exp/
 
 Pass `--name` only. It is the distribution name and the console script. The import package replaces `-` and `.` in that name with `_`, so `my-exp` and `my.exp` both live in `src/my_exp`. Pass `--package` when the import name should differ, for example `--name acme-lab --package lab`.
 
-Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` clones the pinned `my_pkg_py` submodule into `pkgs/` (gitignored in the new project).
+Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` registers the pinned `my_pkg_py` checkout as a submodule at `pkgs/my_pkg_py`. Other paths under `pkgs/` stay gitignored.
 
 ## Documentation
 

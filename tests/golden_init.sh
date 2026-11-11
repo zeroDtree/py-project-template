@@ -95,7 +95,15 @@ PY
 echo "==> --mlkit pin and TOML"
 if submodule_ok my_pkg_py; then
 	MLKIT="$TMP/golden-mlkit"
-	"$ROOT/init.sh" --dest "$MLKIT" --name golden-mlkit --mlkit --https --no-git
+	"$ROOT/init.sh" --dest "$MLKIT" --name golden-mlkit --mlkit --https --no-git \
+		2>"$TMP/mlkit-nogit.err"
+	grep -q "does not register" "$TMP/mlkit-nogit.err"
+	grep -q '^/pkgs/$' "$MLKIT/.gitignore"
+	if grep -q '!/pkgs/my_pkg_py' "$MLKIT/.gitignore"; then
+		echo "Error: --no-git un-ignored pkgs/my_pkg_py" >&2
+		exit 1
+	fi
+	grep -q "gitignored" "$MLKIT/README.md"
 	assert_no_tokens "$MLKIT" skip-pkgs
 	expected="$(git -C "$ROOT/my_pkg_py" rev-parse HEAD)"
 	actual="$(git -C "$MLKIT/pkgs/my_pkg_py" rev-parse HEAD)"
@@ -127,6 +135,53 @@ assert source["path"] == "pkgs/my_pkg_py", source
 assert source["editable"] is True, source
 print("mlkit pyproject ok")
 PY
+
+	echo "==> --mlkit submodule pin"
+	GITML="$TMP/golden-mlkit-git"
+	"$ROOT/init.sh" --dest "$GITML" --name golden-mlkit-git --mlkit --https
+	assert_no_tokens "$GITML" skip-pkgs
+	expected="$(git -C "$ROOT/my_pkg_py" rev-parse HEAD)"
+	actual="$(git -C "$GITML/pkgs/my_pkg_py" rev-parse HEAD)"
+	if [[ "$expected" != "$actual" ]]; then
+		echo "Error: mlkit submodule pin mismatch: expected $expected got $actual" >&2
+		exit 1
+	fi
+	stage="$(git -C "$GITML" ls-files -s -- pkgs/my_pkg_py)"
+	mode="${stage%% *}"
+	rest="${stage#* }"
+	sha="${rest%% *}"
+	if [[ "$mode" != "160000" || "$sha" != "$expected" ]]; then
+		echo "Error: expected gitlink 160000 $expected, got: $stage" >&2
+		exit 1
+	fi
+	recorded="$(git -C "$GITML" config --file "$GITML/.gitmodules" --get submodule.my_pkg_py.url)"
+	case "$recorded" in
+		https://*) ;;
+		*)
+			echo "Error: expected HTTPS submodule URL, got $recorded" >&2
+			exit 1
+			;;
+	esac
+	path_entry="$(git -C "$GITML" config --file "$GITML/.gitmodules" --get submodule.my_pkg_py.path)"
+	if [[ "$path_entry" != "pkgs/my_pkg_py" ]]; then
+		echo "Error: unexpected submodule path: $path_entry" >&2
+		exit 1
+	fi
+	origin="$(git -C "$GITML/pkgs/my_pkg_py" remote get-url origin)"
+	if [[ "$origin" != "$recorded" ]]; then
+		echo "Error: submodule origin $origin does not match .gitmodules $recorded" >&2
+		exit 1
+	fi
+	if git -C "$GITML" check-ignore -q -- pkgs/my_pkg_py; then
+		echo "Error: pkgs/my_pkg_py is ignored" >&2
+		exit 1
+	fi
+	if [[ ! -f "$GITML/pkgs/my_pkg_py/.git" ]]; then
+		echo "Error: pkgs/my_pkg_py/.git is not a gitfile" >&2
+		exit 1
+	fi
+	grep -q '!/pkgs/my_pkg_py' "$GITML/.gitignore"
+	grep -q -- '--recurse-submodules' "$GITML/README.md"
 else
 	if [[ "${CI:-}" == "true" ]]; then
 		echo "Error: my_pkg_py submodule is required in CI" >&2

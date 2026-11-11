@@ -16,7 +16,7 @@
 | `artifacts/` | 运行产物：Hydra 运行目录、检查点、日志。 |
 | `docs/` | 这个项目自己的设计笔记和数学说明。 |
 | `legacy/` | 以后可以加的历史代码目录。Ruff 和 ty 排除。 |
-| `pkgs/` | 可选的第三方或工作区包。`--mlkit` 把钉住的 `my_pkg_py` 克隆到这里。除非明确要改它，否则把它当参考。 |
+| `pkgs/` | 可选的第三方或工作区包。`--mlkit` 把钉住的 `my_pkg_py` 登记为 `pkgs/my_pkg_py` 这个 submodule。`pkgs/` 下其它路径仍被 gitignore。除非明确要改它，否则把它当参考。 |
 | `data/` | 以后可以加的数据集和其他输入。被 gitignore。其下为 `raw/`、`meta/`、`processed/`，规则见生成项目的 `docs/best-practices.md`。 |
 
 仓库根是放着 `.project-root` 的那一层。`paths.py` 从那里读路径。
@@ -52,6 +52,6 @@ SMTP 密码放在 gitignore 的 `shell_script/env_email.sh`，不要提交。
 
 配置写在 `configs/hydra`。入口是 `@hydra.main(version_base="1.3", config_path=str(HYDRA_CONFIG_ROOT), config_name="default.yaml")`。
 
-Hydra 的 run、sweep、检查点和日志都在 `artifacts/` 下。`--mlkit` 的训练走 `mlkit.pipeline`。`pkgs/my_pkg_py` 是 gitignore 的可编辑检出，提交钉在模板子模块上。
+Hydra 的 run、sweep、检查点和日志都在 `artifacts/` 下。`--mlkit` 的训练走 `mlkit.pipeline`。`pkgs/my_pkg_py` 是钉在模板提交上的 submodule。别人用 `--recurse-submodules` 克隆。
 
 `artifacts/`、数据集、`.env` 和带密钥的脚本留在 git 外面。

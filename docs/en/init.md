@@ -15,10 +15,10 @@
 | `--name NAME` | Project name. Default: the destination directory's basename. |
 | `--package PKG` | Override the import package. Default: replace `-` and `.` in `NAME` with `_`. |
 | `--python VERSION` | Python version. Default: `3.12`. |
-| `--mlkit` | Clone the pinned `my_pkg_py` submodule into `pkgs/` and scaffold the training pipeline. |
+| `--mlkit` | Clone the pinned `my_pkg_py` submodule into `pkgs/` and scaffold the training pipeline. Unless `--no-git`, register that checkout as a submodule of the new project. |
 | `--lorebook` | Copy Cursor, Copilot, and Claude rules. Off by default. |
-| `--https` | Use HTTPS for the `pkgs/my_pkg_py` origin. Also applied when this template's `origin` is already `http://` or `https://`. |
-| `--no-git` | Do not run `git init` in the destination. |
+| `--https` | Use HTTPS for the `pkgs/my_pkg_py` origin and, when the submodule is registered, for the `.gitmodules` URL. Also applied when this template's `origin` is already `http://` or `https://`. |
+| `--no-git` | Do not run `git init` in the destination. With `--mlkit`, the pin is not recorded. |
 | `-h`, `--help` | Print the comment help and exit. |
 
 ## Names
@@ -48,17 +48,19 @@ flowchart TD
   lore -->|yes| rules["ai-lorebook/apply.sh"]
   lore -->|no| git["git init -b main<br/>unless --no-git"]
   rules --> git
+  git --> record{"--mlkit and not --no-git?"}
+  record -->|yes| link["write .gitmodules<br/>stage the gitlink"]
 ```
 
 1. Reject a missing `--dest`, a path that is not a directory, or a directory that already contains files.
 2. Require `uv` on `PATH`.
 3. Copy `overlay/` into the destination.
-4. With `--mlkit`, clone this repo's `my_pkg_py` checkout into `pkgs/my_pkg_py` and copy `overlay_mlkit/` on top. The clone's commit is checked against the submodule pin.
+4. With `--mlkit`, clone this repo's `my_pkg_py` checkout into `pkgs/my_pkg_py`, detach it at the template pin, and copy `overlay_mlkit/` on top. Init exits if the clone's commit differs from the pin.
 5. Rename `src/__PACKAGE_NAME__` to `src/<package>`.
-6. Run `scaffold.py finalize`, which replaces tokens and, with `--mlkit`, edits `pyproject.toml` and appends the mlkit note to `README.md`.
+6. Run `scaffold.py finalize`, which replaces tokens and, with `--mlkit`, edits `pyproject.toml` and appends the mlkit note to `README.md`. When git init will follow, finalize also receives `--track-mlkit`, which un-ignores `pkgs/my_pkg_py` and describes the submodule in that note.
 7. With `--lorebook`, run `ai-lorebook/apply.sh -d DEST -f`.
 8. Mark the shell scripts executable.
-9. Unless `--no-git`, run `git init -b main`.
+9. Unless `--no-git`, run `git init -b main`. With `--mlkit`, write `.gitmodules` from the clone's origin, stage a gitlink for `pkgs/my_pkg_py` at the pin, and run `git submodule absorbgitdirs`. `--no-git` leaves the local clone in place and warns that the pin is not recorded.
 
 ## Placeholders
 
@@ -76,11 +78,11 @@ Replacement is a literal string replace. Files that are not valid UTF-8 are left
 
 ## HTTPS origins
 
-`--mlkit` sets the new clone's `origin` from the submodule URL in `.gitmodules` (`git@github.com:zeroDtree/my_pkg_py.git` unless that file says otherwise).
+`--mlkit` sets the new clone's `origin` from the submodule URL in this template's `.gitmodules` (`git@github.com:zeroDtree/my_pkg_py.git` unless that file says otherwise). When the new project registers the submodule, its own `.gitmodules` records that same URL.
 
 The URL is rewritten to HTTPS when either of these is true:
 
 - `--https` was passed
 - this template's own `origin` already starts with `http://` or `https://`
 
-`git@host:path` and `ssh://git@host/path` become `https://host/path`. An URL that is already HTTP or HTTPS stays as written. That remote exists only on the `--mlkit` clone, so `--https` applies there.
+`git@host:path` and `ssh://git@host/path` become `https://host/path`. An URL that is already HTTP or HTTPS stays as written.

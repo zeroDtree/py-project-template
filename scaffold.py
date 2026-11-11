@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stdlib helpers for init.sh: token replace, git URL rewrite, pyproject TOML edit."""
+"""Stdlib helpers for init.sh: token replace, git URL rewrite, pyproject and gitignore edits."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Any
 
 MLKIT_PATH = "pkgs/my_pkg_py"
+PKGS_IGNORE = "/pkgs/\n"
+PKGS_IGNORE_TRACKED = "/pkgs/*\n!/pkgs/my_pkg_py\n"
 SKIP_DIRS = {".git", ".venv", "__pycache__"}
 _BARE_KEY = re.compile(r"^[A-Za-z0-9_-]+$")
 _SSH_SCP = re.compile(r"^git@([^:]+):(.+)$")
@@ -27,6 +29,22 @@ bash shell_script/mc-run-python.sh {package}.cli
 ```
 
 To depend on GitHub instead of the local clone, replace the `mlkit` path source in `pyproject.toml` with `git+https://github.com/zeroDtree/my_pkg_py`.
+"""
+
+MLKIT_README_TRACKED = """
+
+## mlkit training
+
+This project uses the `mlkit` training pipeline from the `pkgs/my_pkg_py` submodule (uv editable). The pinned commit is recorded in this repository.
+
+```bash
+git clone --recurse-submodules <this-repo>
+uv sync
+uv run python -m {package}.cli
+bash shell_script/mc-run-python.sh {package}.cli
+```
+
+If that clone has no submodule checkout, run `git submodule update --init pkgs/my_pkg_py` before `uv sync`.
 """
 
 
@@ -157,9 +175,19 @@ def add_mlkit_pyproject(path: Path) -> None:
     path.write_text(dump_toml(data), encoding="utf-8")
 
 
-def append_mlkit_readme(path: Path, package_name: str) -> None:
-    extra = MLKIT_README.format(package=package_name)
+def append_mlkit_readme(path: Path, package_name: str, *, tracked: bool = False) -> None:
+    template = MLKIT_README_TRACKED if tracked else MLKIT_README
+    extra = template.format(package=package_name)
     path.write_text(path.read_text(encoding="utf-8") + extra, encoding="utf-8")
+
+
+def unignore_mlkit_submodule(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    if not text.endswith("\n"):
+        text += "\n"
+    if PKGS_IGNORE not in text:
+        raise SystemExit(f"Error: {path} is missing the /pkgs/ ignore entry")
+    path.write_text(text.replace(PKGS_IGNORE, PKGS_IGNORE_TRACKED, 1), encoding="utf-8")
 
 
 def finalize(
@@ -171,7 +199,10 @@ def finalize(
     python_tag: str,
     python_next: str,
     use_mlkit: bool,
+    track_mlkit: bool = False,
 ) -> None:
+    if track_mlkit and not use_mlkit:
+        raise SystemExit("Error: --track-mlkit requires --mlkit")
     replacements = {
         "__PROJECT_NAME__": project_name,
         "__PACKAGE_NAME__": package_name,
@@ -182,7 +213,9 @@ def finalize(
     replace_tokens(dest, replacements, skip_pkgs=use_mlkit)
     if use_mlkit:
         add_mlkit_pyproject(dest / "pyproject.toml")
-        append_mlkit_readme(dest / "README.md", package_name)
+        append_mlkit_readme(dest / "README.md", package_name, tracked=track_mlkit)
+        if track_mlkit:
+            unignore_mlkit_submodule(dest / ".gitignore")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -197,6 +230,7 @@ def main(argv: list[str] | None = None) -> int:
     finalize_cmd.add_argument("--python-tag", required=True)
     finalize_cmd.add_argument("--python-next", required=True)
     finalize_cmd.add_argument("--mlkit", action="store_true")
+    finalize_cmd.add_argument("--track-mlkit", action="store_true")
 
     rewrite_cmd = sub.add_parser("rewrite-url", help="optionally rewrite a git URL to HTTPS")
     rewrite_cmd.add_argument("url")
@@ -215,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
             python_tag=args.python_tag,
             python_next=args.python_next,
             use_mlkit=args.mlkit,
+            track_mlkit=args.track_mlkit,
         )
         return 0
     raise AssertionError(args.cmd)
