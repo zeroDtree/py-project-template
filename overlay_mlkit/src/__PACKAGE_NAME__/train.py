@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import os
 from typing import Any, cast
 
 import wandb
 from accelerate import Accelerator
 from omegaconf import DictConfig, OmegaConf
+from torch.distributed import destroy_process_group
 
 from mlkit.pipeline import LogConfig
 from mlkit.util.log import get_and_create_new_log_dir, get_logger
@@ -13,6 +15,7 @@ from mlkit.util.show import show_info
 
 from __PACKAGE_NAME__.data import get_collate_fn, get_dataset
 from __PACKAGE_NAME__.model import get_model
+from __PACKAGE_NAME__.paths import project_path
 from __PACKAGE_NAME__.utils_for_main import (
     get_learing_rate_scheduler,
     get_new_save_dir,
@@ -31,7 +34,10 @@ def run(cfg: DictConfig) -> None:
 
     logger = None
     if accelerator.is_local_main_process:
-        log_dir = get_and_create_new_log_dir(cfg.log.log_dir)
+        log_dir = get_and_create_new_log_dir(
+            str(project_path(str(cfg.log.log_dir))),
+            suffix=str(os.getpid()),
+        )
         logger = get_logger(name="experiment", log_dir=log_dir)
         logger.info(f"accelerator.device = {accelerator.device}")
         logger.info(f"seed = {cfg.train.seed}")
@@ -44,6 +50,7 @@ def run(cfg: DictConfig) -> None:
             name=run_name,
             group=cfg.wandb.group,
             entity=cfg.wandb.get("entity") or None,
+            dir=str(project_path(str(cfg.wandb.dir))),
             config=cast(dict[str, Any], OmegaConf.to_container(cfg, resolve=True)),
         )
 
@@ -77,3 +84,6 @@ def run(cfg: DictConfig) -> None:
 
     if accelerator.is_local_main_process:
         wandb.finish()
+
+    if accelerator.distributed_type != "NO":
+        destroy_process_group()

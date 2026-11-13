@@ -43,7 +43,7 @@ Manage Clash or another local proxy separately; this repo does not start it auto
 
 ## Email
 
-Copy `env_email.sh.example` to `env_email.sh` (gitignored) and fill in SMTP settings (`FROM_EMAIL`, `FROM_SMTP_HOST`, `FROM_SMTP_PORT`, `FROM_SMTP_PASSWORD`, `TO_EMAIL`). `mc-run-python.sh` calls `email.sh` only when the run exits 0 and forwards the module and Hydra overrides into the message.
+Copy `env_email.sh.example` to `env_email.sh` (gitignored) and fill in SMTP settings (`FROM_EMAIL`, `FROM_SMTP_HOST`, `FROM_SMTP_PORT`, `FROM_SMTP_PASSWORD`, `TO_EMAIL`). `mc-run-python.sh` calls `email.sh` only when the run exits 0. The message includes a replayable command, `cuda <GPU ids> bash shell_script/mc-run-python.sh <module> [args...]`. The GPU ids are omitted when `CUDA_VISIBLE_DEVICES` is unset.
 
 ```bash
 cp shell_script/env_email.sh.example shell_script/env_email.sh

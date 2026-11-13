@@ -44,7 +44,7 @@ export MC_ENABLE_PROXY=1
 bash shell_script/mc-run-python.sh my_exp.cli
 ```
 
-`mc-run-python.sh` launches `accelerate.commands.launch` with `configs/accelerate/acc_cfg_base.yaml` and `--num_processes` equal to the visible GPU count. It records the command under `artifacts/command_logs/`. On exit code 0 it calls `email.sh` and still exits 0 if that mail fails. Other exit codes skip mail.
+`mc-run-python.sh` launches `accelerate.commands.launch` with `configs/accelerate/acc_cfg_base.yaml` and `--num_processes` equal to the visible GPU count. It records the command under `artifacts/command_logs/`. On exit code 0 it calls `email.sh` and still exits 0 if that mail fails. The message includes a replayable command, `cuda <GPU ids> bash shell_script/mc-run-python.sh <module> [args...]`. The GPU ids are omitted when `CUDA_VISIBLE_DEVICES` is unset. Other exit codes skip mail.
 
 Both runners call `uv sync` unless `MC_SKIP_UV_SYNC=1` or the process is already inside a Slurm job.
 

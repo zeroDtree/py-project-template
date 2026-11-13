@@ -26,9 +26,9 @@ The import name is `mlkit`. The checkout stays on the commit this template's sub
 
 `cli.py` calls `run(cfg)`.
 
-On every process, `run` seeds with `cfg.train.seed` and builds an `Accelerator` from `cfg.train.mixed_precision`. The local main process creates `cfg.log.log_dir`, writes the resolved config to that logger, and calls `wandb.init` with the `wandb` group (`mode` defaults to `offline`, and `project` is the project name).
+On every process, `run` seeds with `cfg.train.seed` and builds an `Accelerator` from `cfg.train.mixed_precision`. The local main process creates a log directory under `cfg.log.log_dir`, resolved from the repository root, and appends the process id so two launches in the same second stay apart. It writes the resolved config to that logger and calls `wandb.init` with the `wandb` group. `mode` defaults to `offline`, `project` is the project name, and `dir` is `artifacts`, so offline runs land in `artifacts/wandb/`.
 
-It then builds the model, datasets, optimizer, and learning-rate scheduler from the Hydra groups, and trains through `mlkit.pipeline`. The main process calls `wandb.finish()` after training.
+It then builds the model, datasets, optimizer, and learning-rate scheduler from the Hydra groups, and trains through `mlkit.pipeline`. The main process calls `wandb.finish()` after training. When `accelerator.distributed_type` is anything other than `NO`, `run` destroys the process group.
 
 `src/my_exp/model.py` is a toy linear module whose forward returns a dict with `loss`. Replace `get_model` and `get_dataset` when the experiment is real. `pkgs/my_pkg_py` is the pinned library.
 

@@ -111,6 +111,11 @@ set -e
 
 # Notify only on successful completion; skip email for manual interrupts (debug).
 if [[ "$exit_code" -eq 0 ]]; then
-	bash "$SCRIPT_DIR/email.sh" "$exit_code" -- "$entry_module" "$@" || true
+	command_args=(cuda)
+	if [[ -n "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+		command_args+=("$CUDA_VISIBLE_DEVICES")
+	fi
+	command_args+=(bash "$0" "$entry_module" "$@")
+	bash "$SCRIPT_DIR/email.sh" "$exit_code" -- "${command_args[@]}" || true
 fi
 exit "$exit_code"

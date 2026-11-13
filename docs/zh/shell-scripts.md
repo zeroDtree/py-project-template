@@ -44,7 +44,7 @@ export MC_ENABLE_PROXY=1
 bash shell_script/mc-run-python.sh my_exp.cli
 ```
 
-`mc-run-python.sh` 用 `configs/accelerate/acc_cfg_base.yaml` 启动 `accelerate.commands.launch`，`--num_processes` 等于可见 GPU 数。命令记在 `artifacts/command_logs/`。退出码 0 时调用 `email.sh`；信发失败，进程仍以 0 退出。别的退出码不发信。
+`mc-run-python.sh` 用 `configs/accelerate/acc_cfg_base.yaml` 启动 `accelerate.commands.launch`，`--num_processes` 等于可见 GPU 数。命令记在 `artifacts/command_logs/`。退出码 0 时调用 `email.sh`；信发失败，进程仍以 0 退出。邮件里带一条可重放的命令：`cuda <GPU 编号> bash shell_script/mc-run-python.sh <模块> [参数...]`。`CUDA_VISIBLE_DEVICES` 没设置时，命令里不写 GPU 编号。别的退出码不发信。
 
 两个启动脚本都会 `uv sync`，除非 `MC_SKIP_UV_SYNC=1`，或进程已经在 Slurm 作业里。
 

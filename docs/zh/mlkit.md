@@ -26,9 +26,9 @@ mlkit = { path = "pkgs/my_pkg_py", editable = true }
 
 `cli.py` 调用 `run(cfg)`。
 
-每个进程用 `cfg.train.seed` 设种子，并用 `cfg.train.mixed_precision` 建 `Accelerator`。本机主进程创建 `cfg.log.log_dir`，把解析后的配置写进日志，再按 `wandb` 配置组调用 `wandb.init`（`mode` 默认 `offline`，`project` 是项目名）。
+每个进程用 `cfg.train.seed` 设种子，并用 `cfg.train.mixed_precision` 建 `Accelerator`。本机主进程在 `cfg.log.log_dir` 下建日志目录，路径从仓库根解析，并带上进程号，同一秒内的两次启动不会撞目录。它把解析后的配置写进日志，再按 `wandb` 配置组调用 `wandb.init`。`mode` 默认 `offline`，`project` 是项目名，`dir` 是 `artifacts`，离线 run 落在 `artifacts/wandb/`。
 
-然后按 Hydra 分组建模型、数据集、优化器和学习率调度器，经 `mlkit.pipeline` 训练。训练结束，主进程调用 `wandb.finish()`。
+然后按 Hydra 分组建模型、数据集、优化器和学习率调度器，经 `mlkit.pipeline` 训练。训练结束，主进程调用 `wandb.finish()`。`accelerator.distributed_type` 只要不是 `NO`，`run` 就拆掉进程组。
 
 `src/my_exp/model.py` 是个线性小例子，`forward` 返回带 `loss` 的字典。正式实验换掉 `get_model` 和 `get_dataset`。`pkgs/my_pkg_py` 就是这份 pin 对应的库。
 

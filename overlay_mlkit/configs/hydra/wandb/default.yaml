@@ -3,3 +3,5 @@ mode: offline
 project: __PROJECT_NAME__
 group: default
 entity: null
+# Parent directory. wandb creates wandb/ inside it, so runs land in artifacts/wandb/.
+dir: artifacts
