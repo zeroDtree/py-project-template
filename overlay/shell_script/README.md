@@ -22,6 +22,7 @@ This syncs the `dev` group, runs `python -m __PACKAGE_NAME__.cli --help`, pytest
 | `MC_SKIP_UV_SYNC` | off | Set to `1` to skip `uv sync` in `run-python.sh` / `mc-run-python.sh`. Under Slurm (`SLURM_JOB_ID` set), defaults to `1`. |
 | `CUDA_VISIBLE_DEVICES` | unset | Comma-separated GPU ids; `mc-run-python.sh` is GPU-only and uses this (or `nvidia-smi -L`) for `--num_processes`. |
 | `SYNC_REMOTE` | (required for r2l) | Remote repo root for `file_sync/r2l.sh`, e.g. `user@host:/path/to/__PROJECT_NAME__`. |
+| `FROM_NAME` | `__PROJECT_NAME__` | Display name on completion email. SMTP settings themselves live in `env_email.sh`. |
 
 ## Run Python
 
@@ -63,6 +64,19 @@ bash shell_script/file_sync/r2l.sh --run    # actually sync
 
 ## HPC / Slurm
 
-This overlay ships `hpc/env.sh` only (no sample `.slurm` files). Source it from batch scripts you add. Submit those jobs from the **repo root**: `env.sh` sets `PROJECT_ROOT` from `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`. Default `CUDA_HOME` is `$HOME/software/cuda/cuda-12.4`.
+Submit from the **repo root**. `hpc/env.sh` sets `PROJECT_ROOT` from `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`.
+
+`CUDA_HOME` defaults to `$HOME/software/cuda/cuda-12.4`. `#SBATCH --partition=phys_hq` in the sample jobs is this site's partition. Change both for another cluster.
+
+| Script | Role |
+| --- | --- |
+| `hpc/test.slurm` | Node smoke test: driver and toolkit. The PyTorch matmul runs only when `torch` imports. |
+| `hpc/run.slurm` | Sets the cluster env, then calls `mc-run-python.sh`. |
 
 Sync the venv on the **login node** before submitting (compute nodes often have no network/proxy). Under Slurm, `MC_SKIP_UV_SYNC` defaults to `1`.
+
+```bash
+mkdir -p artifacts/logs/slurm
+sbatch shell_script/hpc/test.slurm
+sbatch shell_script/hpc/run.slurm -- __PACKAGE_NAME__.cli
+```

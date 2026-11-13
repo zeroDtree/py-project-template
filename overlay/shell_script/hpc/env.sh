@@ -6,6 +6,7 @@
 #
 # Requires: SLURM_SUBMIT_DIR set by Slurm (submit from the repo root).
 # Optional: CUDA_HOME (default: $HOME/software/cuda/cuda-12.4).
+# Change the default for a different cluster toolkit.
 
 if [[ -z "${SLURM_SUBMIT_DIR:-}" || ! -d "${SLURM_SUBMIT_DIR}" ]]; then
 	echo "ERROR: SLURM_SUBMIT_DIR is unset or invalid: '${SLURM_SUBMIT_DIR:-}'" >&2

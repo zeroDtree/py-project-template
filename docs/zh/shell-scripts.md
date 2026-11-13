@@ -56,7 +56,7 @@ bash shell_script/mc-run-python.sh my_exp.cli
 cp shell_script/env_email.sh.example shell_script/env_email.sh
 ```
 
-示例里有 `FROM_EMAIL`、`FROM_SMTP_HOST`、`FROM_SMTP_PORT`（默认 `994`）、`FROM_SMTP_PASSWORD` 和 `TO_EMAIL`。
+示例里有 `FROM_EMAIL`、`FROM_SMTP_HOST`、`FROM_SMTP_PORT`（默认 `994`）、`FROM_SMTP_PASSWORD` 和 `TO_EMAIL`。`FROM_NAME` 可选。不设置时，邮件显示名用项目名。
 
 ```bash
 bash shell_script/email.sh 0
@@ -77,10 +77,19 @@ bash shell_script/file_sync/r2l.sh --run
 
 ## Slurm
 
-模板里只有 `shell_script/hpc/env.sh`。批处理脚本自己写，里面 source `env.sh`，从仓库根 `sbatch`。
+从仓库根提交。`shell_script/hpc/env.sh` 用 `SLURM_SUBMIT_DIR` 定 `PROJECT_ROOT`。Slurm 常把批处理文件拷到 spool 目录再跑，用 `BASH_SOURCE` 会指错地方。没设置 `SLURM_SUBMIT_DIR` 时，这个脚本报错返回。
 
-`env.sh` 用 `SLURM_SUBMIT_DIR` 定 `PROJECT_ROOT`。Slurm 常把批处理文件拷到 spool 目录再跑，用 `BASH_SOURCE` 会指错地方。没设置 `SLURM_SUBMIT_DIR` 时，这个脚本报错返回。
+`CUDA_HOME` 默认 `$HOME/software/cuda/cuda-12.4`。示例作业里的 `#SBATCH --partition=phys_hq` 是这台集群的分区。换集群时两处都要改。
 
-`CUDA_HOME` 默认 `$HOME/software/cuda/cuda-12.4`。
+| 脚本 | 作用 |
+| --- | --- |
+| `shell_script/hpc/test.slurm` | 节点冒烟：驱动和 toolkit。只有能 `import torch` 时才跑 PyTorch 矩阵乘。 |
+| `shell_script/hpc/run.slurm` | 设好集群环境，再调用 `mc-run-python.sh`。 |
 
 计算节点常常没有网，也没有代理。`sbatch` 之前在登录节点 `uv sync`。作业里 `MC_SKIP_UV_SYNC` 默认已经是 `1`。
+
+```bash
+mkdir -p artifacts/logs/slurm
+sbatch shell_script/hpc/test.slurm
+sbatch shell_script/hpc/run.slurm -- my_exp.cli
+```

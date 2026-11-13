@@ -73,3 +73,5 @@ packages = ["src/my_exp"]
 | `ARTIFACT_ROOT` | `PROJECT_ROOT / "artifacts"` |
 
 `project_path("configs/hydra/default.yaml")` 把相对路径接到 `PROJECT_ROOT` 后面。传绝对路径就原样返回。找不到标记文件时，导入会抛 `RuntimeError`。
+
+导入 `paths.py` 时还会调用 `ensure_repo_on_sys_path()`：若 `sys.path` 里还没有 `PROJECT_ROOT`，就把它插到最前面。控制台脚本不会把当前工作目录放进 `sys.path`；pytest 会，靠的是 `pythonpath = ["src", "."]`。这样脚本才能导入 `pkgs/` 里带进来的代码。

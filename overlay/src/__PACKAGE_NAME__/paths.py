@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 
@@ -24,3 +25,17 @@ def project_path(path: str | Path) -> Path:
     """Resolve a project-relative path without depending on the process CWD."""
     candidate = Path(path)
     return candidate if candidate.is_absolute() else PROJECT_ROOT / candidate
+
+
+def ensure_repo_on_sys_path() -> None:
+    """Put the repository root on ``sys.path`` so vendored ``pkgs`` imports work.
+
+    Console scripts do not include the working directory. Pytest does, via
+    ``pythonpath = ["src", "."]``.
+    """
+    root = str(PROJECT_ROOT)
+    if root not in sys.path:
+        sys.path.insert(0, root)
+
+
+ensure_repo_on_sys_path()

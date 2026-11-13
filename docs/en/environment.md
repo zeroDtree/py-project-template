@@ -73,3 +73,5 @@ packages = ["src/my_exp"]
 | `ARTIFACT_ROOT` | `PROJECT_ROOT / "artifacts"` |
 
 `project_path("configs/hydra/default.yaml")` joins a relative path onto `PROJECT_ROOT`. An absolute path is returned unchanged. If the marker file is missing, importing the module raises `RuntimeError`.
+
+Importing `paths.py` also calls `ensure_repo_on_sys_path()`, which inserts `PROJECT_ROOT` at the front of `sys.path` when it is missing. Console scripts do not put the working directory on `sys.path`; pytest does, via `pythonpath = ["src", "."]`. The insert lets a script import a vendored tree under `pkgs/`.

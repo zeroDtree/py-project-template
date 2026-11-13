@@ -18,7 +18,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
-FROM_NAME = "0tree"
+FROM_NAME = os.environ.get("FROM_NAME", "__PROJECT_NAME__")
 
 REQUIRED_ENV_VARS = (
     "FROM_EMAIL",

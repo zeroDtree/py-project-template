@@ -1,5 +1,8 @@
 # Fill in SMTP settings, then copy to env_email.sh (gitignored).
 #   cp shell_script/env_email.sh.example shell_script/env_email.sh
+#
+# Optional display name. Defaults to __PROJECT_NAME__ when unset.
+# export FROM_NAME="__PROJECT_NAME__"
 
 export FROM_EMAIL=""
 export FROM_SMTP_HOST=""

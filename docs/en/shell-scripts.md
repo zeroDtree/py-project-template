@@ -56,7 +56,7 @@ Copy the example, then fill in the SMTP fields. `env_email.sh` is gitignored. Do
 cp shell_script/env_email.sh.example shell_script/env_email.sh
 ```
 
-The example exports `FROM_EMAIL`, `FROM_SMTP_HOST`, `FROM_SMTP_PORT` (default `994`), `FROM_SMTP_PASSWORD`, and `TO_EMAIL`.
+The example exports `FROM_EMAIL`, `FROM_SMTP_HOST`, `FROM_SMTP_PORT` (default `994`), `FROM_SMTP_PASSWORD`, and `TO_EMAIL`. `FROM_NAME` is optional. When it is unset, the message uses the project name.
 
 ```bash
 bash shell_script/email.sh 0
@@ -77,10 +77,19 @@ bash shell_script/file_sync/r2l.sh --run
 
 ## Slurm
 
-The overlay ships `shell_script/hpc/env.sh`. Write the batch script yourself, source `env.sh` from it, and submit that job from the repo root.
+Submit from the repo root. `shell_script/hpc/env.sh` sets `PROJECT_ROOT` from `SLURM_SUBMIT_DIR`. Slurm often runs a copy of the batch file from a spool directory, so `BASH_SOURCE` points at the wrong place. If `SLURM_SUBMIT_DIR` is unset, the helper returns an error.
 
-`env.sh` sets `PROJECT_ROOT` from `SLURM_SUBMIT_DIR`. Slurm often runs a copy of the batch file from a spool directory, so `BASH_SOURCE` points at the wrong place. If `SLURM_SUBMIT_DIR` is unset, the helper returns an error.
+`CUDA_HOME` defaults to `$HOME/software/cuda/cuda-12.4`. `#SBATCH --partition=phys_hq` in the sample jobs is this site's partition. Change both for another cluster.
 
-`CUDA_HOME` defaults to `$HOME/software/cuda/cuda-12.4`.
+| Script | Role |
+| --- | --- |
+| `shell_script/hpc/test.slurm` | Node smoke test: driver and toolkit. The PyTorch matmul runs only when `torch` imports. |
+| `shell_script/hpc/run.slurm` | Sets the cluster env, then calls `mc-run-python.sh`. |
 
 Compute nodes often have no network and no proxy. Run `uv sync` on the login node before `sbatch`. Inside the job, `MC_SKIP_UV_SYNC` already defaults to `1`.
+
+```bash
+mkdir -p artifacts/logs/slurm
+sbatch shell_script/hpc/test.slurm
+sbatch shell_script/hpc/run.slurm -- my_exp.cli
+```

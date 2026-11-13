@@ -64,7 +64,7 @@ See [shell_script/README.md](../shell_script/README.md). Invoke as `bash shell_s
 - Help text is English.
 - GPU / Accelerate: `shell_script/mc-run-python.sh` (GPU-only; CPU → `run-python.sh`). 
 - File pull: `shell_script/file_sync/r2l.sh` (dry-run by default).
-- When adding Slurm batch scripts, submit from the repo root and source `shell_script/hpc/env.sh` (`PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`). Sync dependencies on the login node.
+- When using Slurm, submit `shell_script/hpc/run.slurm` or `shell_script/hpc/test.slurm` from the repo root. They source `shell_script/hpc/env.sh` (`PROJECT_ROOT` is `SLURM_SUBMIT_DIR`, not `BASH_SOURCE`). Change `--partition` and the `CUDA_HOME` default for another cluster. Sync dependencies on the login node.
 - Do not commit SMTP secrets; keep them in gitignored `shell_script/env_email.sh`.
 
 ## Hydra, artifacts, and training
