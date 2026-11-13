@@ -21,13 +21,12 @@ bash shell_script/init-check.sh
 | 变量 | 默认 | 用途 |
 | --- | --- | --- |
 | `MC_ENABLE_PROXY` | 关闭 | 在启动脚本之前设为 `1`。`prepare.sh` 会把 `http_proxy` 和 `https_proxy` 指到代理。 |
-| `MC_PROXY_HOST` | `127.0.0.1` | 启用代理时的主机。 |
-| `MC_PROXY_PORT` | `17890` | 启用代理时的端口。 |
+| `PROXY_PORT_FILE` | `$HOME/.config/clash-proxy-port` | 端口文件。第一行是 `1`–`65535` 的端口，代理地址为 `http://127.0.0.1:<端口>`。文件缺失或内容非法时 `proxy_on` 失败。 |
 | `MC_SKIP_UV_SYNC` | 关闭 | 设为 `1` 则跳过 `uv sync`。已经设置了 `SLURM_JOB_ID` 时，默认变成 `1`。 |
 | `CUDA_VISIBLE_DEVICES` | 未设置 | `mc-run-python.sh` 的 GPU 编号。脚本数这些编号，或者数 `nvidia-smi -L` 的行数，并且至少要有一块。 |
 | `SYNC_REMOTE` | r2l 必填 | 远程仓库根，例如 `user@host:/path/to/my-exp`。 |
 
-Clash 或其他代理自己先开好，再 `export MC_ENABLE_PROXY=1`。
+Clash 或其他代理自己先开好，并把端口写进端口文件，再 `export MC_ENABLE_PROXY=1`。
 
 ## CPU 和 GPU
 

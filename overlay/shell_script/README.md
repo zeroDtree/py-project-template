@@ -17,8 +17,7 @@ This syncs the `dev` group, runs `python -m __PACKAGE_NAME__.cli --help`, pytest
 | Variable | Default | Description |
 | --- | --- | --- |
 | `MC_ENABLE_PROXY` | off | Set to `1` **before** the runner (it sources `prepare.sh`) to enable HTTP proxy. |
-| `MC_PROXY_HOST` | `127.0.0.1` | Proxy host when proxy is enabled. |
-| `MC_PROXY_PORT` | `17890` | Proxy port when proxy is enabled. |
+| `PROXY_PORT_FILE` | `$HOME/.config/clash-proxy-port` | Port file. The first line is a port from 1 to 65535; the proxy URL is `http://127.0.0.1:<port>`. `proxy_on` fails if the file is missing or invalid. |
 | `MC_SKIP_UV_SYNC` | off | Set to `1` to skip `uv sync` in `run-python.sh` / `mc-run-python.sh`. Under Slurm (`SLURM_JOB_ID` set), defaults to `1`. |
 | `CUDA_VISIBLE_DEVICES` | unset | Comma-separated GPU ids; `mc-run-python.sh` is GPU-only and uses this (or `nvidia-smi -L`) for `--num_processes`. |
 | `SYNC_REMOTE` | (required for r2l) | Remote repo root for `file_sync/r2l.sh`, e.g. `user@host:/path/to/__PROJECT_NAME__`. |
@@ -39,7 +38,7 @@ export MC_ENABLE_PROXY=1
 bash shell_script/mc-run-python.sh __PACKAGE_NAME__.cli
 ```
 
-Manage Clash or another local proxy separately; this repo does not start it automatically.
+Manage Clash or another local proxy separately; this repo does not start it automatically. Write the proxy port into the port file before enabling the proxy.
 
 ## Email
 

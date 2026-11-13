@@ -21,13 +21,12 @@ This syncs the `dev` group, runs `python -m my_exp.cli --help`, pytest, ruff, an
 | Variable | Default | Used by |
 | --- | --- | --- |
 | `MC_ENABLE_PROXY` | off | Set to `1` before a runner. `prepare.sh` then points `http_proxy` and `https_proxy` at the proxy. |
-| `MC_PROXY_HOST` | `127.0.0.1` | Proxy host when the proxy is enabled. |
-| `MC_PROXY_PORT` | `17890` | Proxy port when the proxy is enabled. |
+| `PROXY_PORT_FILE` | `$HOME/.config/clash-proxy-port` | Port file. The first line is a port from 1 to 65535; the proxy URL is `http://127.0.0.1:<port>`. `proxy_on` fails if the file is missing or invalid. |
 | `MC_SKIP_UV_SYNC` | off | Set to `1` to skip `uv sync`. When `SLURM_JOB_ID` is set, the default becomes `1`. |
 | `CUDA_VISIBLE_DEVICES` | unset | GPU ids for `mc-run-python.sh`. The script counts these, or the lines of `nvidia-smi -L`, and requires at least one. |
 | `SYNC_REMOTE` | required for r2l | Remote repo root, for example `user@host:/path/to/my-exp`. |
 
-Start Clash, or whatever proxy you use, yourself. Then `export MC_ENABLE_PROXY=1`.
+Start Clash, or whatever proxy you use, yourself, and write its port into the port file. Then `export MC_ENABLE_PROXY=1`.
 
 ## CPU and GPU
 

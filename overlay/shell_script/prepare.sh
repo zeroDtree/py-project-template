@@ -1,25 +1,83 @@
 #!/usr/bin/env bash
 set -e
 
-# Proxy defaults (override with MC_PROXY_HOST / MC_PROXY_PORT).
-MC_PROXY_HOST="${MC_PROXY_HOST:-127.0.0.1}"
-MC_PROXY_PORT="${MC_PROXY_PORT:-17890}"
+# One port on the first line. PROXY_PORT_FILE overrides the path.
+# When unset, use the file clash-tunnel.sh writes by default.
+# A missing or invalid file makes proxy_on fail.
+__proxy_expand_path() {
+	local path="$1"
+	case "$path" in
+	'~')
+		printf '%s\n' "$HOME"
+		;;
+	'~/'*)
+		printf '%s\n' "$HOME/${path:2}"
+		;;
+	*)
+		printf '%s\n' "$path"
+		;;
+	esac
+}
+
+__proxy_port_file() {
+	if [[ -n "${PROXY_PORT_FILE:-}" ]]; then
+		__proxy_expand_path "$PROXY_PORT_FILE"
+	else
+		printf '%s\n' "$HOME/.config/clash-proxy-port"
+	fi
+}
+
+__proxy_resolve() {
+	local path raw
+	path="$(__proxy_port_file)"
+	if [[ ! -f "$path" ]]; then
+		echo "proxy_on: $path does not exist" >&2
+		echo "Create this file and write the proxy port in it, or run clash-tunnel.sh on the machine that runs Clash." >&2
+		return 1
+	fi
+	if [[ ! -r "$path" ]]; then
+		echo "proxy_on: cannot read $path" >&2
+		return 1
+	fi
+	if ! raw="$(head -n 1 -- "$path" 2>/dev/null)"; then
+		echo "proxy_on: cannot read $path" >&2
+		return 1
+	fi
+	raw="${raw#"${raw%%[![:space:]]*}"}"
+	raw="${raw%"${raw##*[![:space:]]}"}"
+	if [[ ! "$raw" =~ ^[1-9][0-9]{0,4}$ ]]; then
+		echo "proxy_on: invalid port in $path" >&2
+		return 1
+	fi
+	if ((raw < 1 || raw > 65535)); then
+		echo "proxy_on: invalid port in $path" >&2
+		return 1
+	fi
+	printf '%s\n' "$raw"
+}
 
 proxy_on() {
-	local proxy_url="http://${MC_PROXY_HOST}:${MC_PROXY_PORT}"
-	export http_proxy="$proxy_url" https_proxy="$proxy_url" all_proxy="$proxy_url"
-	export HTTP_PROXY="$proxy_url" HTTPS_PROXY="$proxy_url" ALL_PROXY="$proxy_url"
+	local proxy_port proxy_url var
+	proxy_port="$(__proxy_resolve)" || return 1
+	proxy_url="http://127.0.0.1:${proxy_port}"
+	for var in http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY; do
+		echo "export ${var}=${proxy_url}"
+		export "${var}=${proxy_url}"
+	done
+	echo "export no_proxy=127.0.0.1,localhost"
 	export no_proxy="127.0.0.1,localhost"
+	echo "export NO_PROXY=127.0.0.1,localhost"
 	export NO_PROXY="127.0.0.1,localhost"
-
-	echo -e "\033[32m[√] Proxy enabled on ${MC_PROXY_HOST}:${MC_PROXY_PORT} \033[0m"
+	echo -e "\033[32m[√] Proxy enabled\033[0m"
 }
 
 proxy_off() {
-	unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY
-	unset no_proxy NO_PROXY
-
-	echo -e "\033[31m[×] Proxy disabled on ${MC_PROXY_HOST}:${MC_PROXY_PORT} \033[0m"
+	local var
+	for var in http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY NO_PROXY no_proxy; do
+		echo "unset ${var}"
+		unset "$var"
+	done
+	echo -e "\033[31m[×] Proxy disabled\033[0m"
 }
 
 # Optional helper: start a background process if its name is not already running.
