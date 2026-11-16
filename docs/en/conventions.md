@@ -52,6 +52,6 @@ SMTP secrets stay in gitignored `shell_script/env_email.sh`. Do not commit the p
 
 Compose configs under `configs/hydra`. The entrypoint uses `@hydra.main(version_base="1.3", config_path=str(HYDRA_CONFIG_ROOT), config_name="default.yaml")`.
 
-Hydra run and sweep directories, checkpoints, and logs live under `artifacts/`. With `--mlkit`, training goes through `mlkit.pipeline`. `pkgs/my_pkg_py` is a submodule pinned to the template commit. Collaborators clone with `--recurse-submodules`.
+Hydra run and sweep directories, checkpoints, and logs live under `artifacts/`. With `--mlkit`, training goes through `mlkit.util.experiment.run_experiment` and its `TrainSpec`. `pkgs/my_pkg_py` is a submodule pinned to the template commit. Collaborators clone with `--recurse-submodules`.
 
 Leave `artifacts/`, datasets, `.env`, and secret scripts out of git.

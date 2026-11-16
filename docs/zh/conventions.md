@@ -52,6 +52,6 @@ SMTP 密码放在 gitignore 的 `shell_script/env_email.sh`，不要提交。
 
 配置写在 `configs/hydra`。入口是 `@hydra.main(version_base="1.3", config_path=str(HYDRA_CONFIG_ROOT), config_name="default.yaml")`。
 
-Hydra 的 run、sweep、检查点和日志都在 `artifacts/` 下。`--mlkit` 的训练走 `mlkit.pipeline`。`pkgs/my_pkg_py` 是钉在模板提交上的 submodule。别人用 `--recurse-submodules` 克隆。
+Hydra 的 run、sweep、检查点和日志都在 `artifacts/` 下。`--mlkit` 的训练走 `mlkit.util.experiment.run_experiment` 和它的 `TrainSpec`。`pkgs/my_pkg_py` 是钉在模板提交上的 submodule。别人用 `--recurse-submodules` 克隆。
 
 `artifacts/`、数据集、`.env` 和带密钥的脚本留在 git 外面。

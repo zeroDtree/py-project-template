@@ -119,6 +119,12 @@ if submodule_ok my_pkg_py; then
 	[[ -f "$MLKIT/configs/hydra/model/default.yaml" ]]
 	[[ -f "$MLKIT/configs/hydra/dataset/default.yaml" ]]
 	[[ -f "$MLKIT/configs/hydra/wandb/default.yaml" ]]
+	[[ -f "$MLKIT/configs/hydra/mlflow/default.yaml" ]]
+	grep -q '^reporter: ' "$MLKIT/configs/hydra/default.yaml"
+	if [[ -e "$MLKIT/src/golden_mlkit/utils_for_main.py" ]]; then
+		echo "Error: utils_for_main.py is no longer part of the mlkit overlay" >&2
+		exit 1
+	fi
 	uv_python - "$MLKIT/pyproject.toml" <<'PY'
 import sys
 import tomllib

@@ -47,8 +47,8 @@ Runners and Hydra create `artifacts/` when something writes output.
 
 `--mlkit` merges `overlay_mlkit/` and clones the library:
 
-- `src/my_exp/train.py`, `data.py`, `model.py`, and `utils_for_main.py` join the package. `cli.py` then calls `train.run`.
-- `configs/hydra/` gains `model/`, `dataset/`, `optimizer/`, and `wandb/`.
+- `src/my_exp/train.py`, `data.py`, and `model.py` join the package. `cli.py` then calls `train.run`, which delegates to `mlkit.util.experiment.run_experiment`.
+- `configs/hydra/` gains `model/`, `dataset/`, `optimizer/`, `wandb/`, and `mlflow/`, plus the top-level `reporter` switch.
 - `pkgs/my_pkg_py` is a submodule pinned to the template submodule's commit at init. The pin is stored in the new project. Other paths under `pkgs/` stay gitignored.
 
 `--lorebook` copies editor rules.

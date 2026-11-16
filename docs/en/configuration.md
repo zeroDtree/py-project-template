@@ -20,7 +20,7 @@ defaults:
 | `configs/hydra/log/default.yaml` | `log_dir: artifacts/logs`, plus the log step, epoch, and strategy fields. |
 | `configs/hydra/hydra/default.yaml` | Hydra's own output directories, below. |
 
-`--mlkit` adds `optimizer`, `model`, `dataset`, and `wandb` to that defaults list. The base CLI reads the three groups above.
+`--mlkit` adds `optimizer`, `model`, `dataset`, `wandb`, and `mlflow` to that defaults list, plus the top-level `reporter` switch (`none`, `wandb`, or `mlflow`; default `wandb`). The base CLI reads the three groups above.
 
 ## Output paths
 

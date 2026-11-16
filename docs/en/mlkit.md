@@ -1,6 +1,6 @@
 # mlkit
 
-`--mlkit` vendors a pinned copy of [my_pkg_py](https://github.com/zeroDtree/my_pkg_py) and switches the Hydra entrypoint over to that library's training pipeline.
+`--mlkit` vendors a pinned copy of [my_pkg_py](https://github.com/zeroDtree/my_pkg_py) and switches the Hydra entrypoint over to that library's experiment runner.
 
 ```bash
 git submodule update --init my_pkg_py
@@ -12,7 +12,7 @@ Pass `--https` when the new clone's `origin` should be HTTPS. The flag is also a
 ## Files
 
 - `pkgs/my_pkg_py` is a submodule of the new project. `init.sh` detaches the checkout at the template pin and exits if that commit does not match. The pin is this repository's gitlink. Other paths under `pkgs/` stay gitignored.
-- `overlay_mlkit/` is copied over the base overlay. That adds `train.py`, `data.py`, `model.py`, `utils_for_main.py`, and Hydra configs for the model, dataset, optimizer, and W&B.
+- `overlay_mlkit/` is copied over the base overlay. That adds `train.py`, `data.py`, `model.py`, Hydra configs for the model, dataset, optimizer, W&B, and MLflow, plus the top-level `reporter` switch.
 - `scaffold.py` appends an `mlkit` dependency and a uv path source, un-ignores the submodule path, and appends a short mlkit section to `README.md`.
 
 ```toml
@@ -24,13 +24,15 @@ The import name is `mlkit`. The checkout stays on the commit this template's sub
 
 ## Training
 
-`cli.py` calls `run(cfg)`.
+`cli.py` calls `run(cfg)`, which passes the module-level `SPEC` to `mlkit.util.experiment.run_experiment`.
 
-On every process, `run` seeds with `cfg.train.seed` and builds an `Accelerator` from `cfg.train.mixed_precision`. The local main process creates a log directory under `cfg.log.log_dir`, resolved from the repository root, and appends the process id so two launches in the same second stay apart. It writes the resolved config to that logger and calls `wandb.init` with the `wandb` group. `mode` defaults to `offline`, `project` is the project name, and `dir` is `artifacts`, so offline runs land in `artifacts/wandb/`.
+The runner seeds from `cfg.train.seed` and builds the session `Accelerator` from `cfg.train.mixed_precision`. On the main process it opens a timestamped log directory under `cfg.log.log_dir` and opens the tracking backend selected by `cfg.reporter`: `none`, `wandb`, or `mlflow`. The matching `wandb` or `mlflow` config section supplies the backend settings. The default is `wandb` with `mode: offline` and `project` set to the project name; W&B writes its `wandb/` directory under the launch directory unless `WANDB_DIR` is set.
 
-It then builds the model, datasets, optimizer, and learning-rate scheduler from the Hydra groups, and trains through `mlkit.pipeline`. The main process calls `wandb.finish()` after training. When `accelerator.distributed_type` is anything other than `NO`, `run` destroys the process group.
+`TrainSpec` builds the model, datasets, optimizer, and scheduler, then trains through `mlkit.pipeline`. Checkpoints carry the resolved `config.yaml` and, when tracking is enabled, the tracked run id, so a later run resumes the same experiment. The runner also tears down the process group; `train.py` does not create an `Accelerator`, call `wandb.init`, or destroy the process group itself.
 
-`src/my_exp/model.py` is a toy linear module whose forward returns a dict with `loss`. Replace `get_model` and `get_dataset` when the experiment is real. `pkgs/my_pkg_py` is the pinned library.
+`log.log_dir` and `train.save_dir` resolve relative to the launch directory. Run from the project root (the shell scripts do) so artifacts stay under `artifacts/`.
+
+`src/my_exp/model.py` is a toy linear module whose forward returns a dict with `loss`. Replace `get_model` and `get_dataset` when the experiment is real. Add `after_train`, `on_finish`, or a `get_optimizer` override to `SPEC` when the experiment needs them. `pkgs/my_pkg_py` is the pinned library.
 
 Launch GPU training with the Accelerate runner:
 

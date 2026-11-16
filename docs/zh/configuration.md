@@ -20,7 +20,7 @@ defaults:
 | `configs/hydra/log/default.yaml` | `log_dir: artifacts/logs`，以及日志步数、epoch 和策略。 |
 | `configs/hydra/hydra/default.yaml` | Hydra 自己的输出目录，见下一节。 |
 
-`--mlkit` 再往这份 defaults 里加 `optimizer`、`model`、`dataset`、`wandb`。基础 CLI 读上面这三组。
+`--mlkit` 再往这份 defaults 里加 `optimizer`、`model`、`dataset`、`wandb`、`mlflow`，再加顶层 `reporter` 开关（`none`、`wandb` 或 `mlflow`，默认 `wandb`）。基础 CLI 读上面这三组。
 
 ## 输出目录
 

@@ -47,8 +47,8 @@ my-exp/
 
 `--mlkit` 合并 `overlay_mlkit/`，并克隆库：
 
-- 包里多出 `src/my_exp/train.py`、`data.py`、`model.py`、`utils_for_main.py`。`cli.py` 改去调用 `train.run`。
-- `configs/hydra/` 多出 `model/`、`dataset/`、`optimizer/`、`wandb/`。
+- 包里多出 `src/my_exp/train.py`、`data.py`、`model.py`。`cli.py` 改去调用 `train.run`，它再交给 `mlkit.util.experiment.run_experiment`。
+- `configs/hydra/` 多出 `model/`、`dataset/`、`optimizer/`、`wandb/`、`mlflow/`，以及顶层 `reporter` 开关。
 - `pkgs/my_pkg_py` 是新项目的 submodule，提交钉在 init 时模板子模块的 commit。pin 记在新项目里。`pkgs/` 下其它路径仍在 gitignore 里。
 
 `--lorebook` 复制编辑器规则：

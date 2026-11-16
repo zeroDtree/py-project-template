@@ -5,5 +5,9 @@ defaults:
   - model/default
   - dataset/default
   - wandb/default
+  - mlflow/default
   - hydra/default@_here_
   - _self_
+
+# none | wandb | mlflow. The matching section below configures the backend.
+reporter: wandb

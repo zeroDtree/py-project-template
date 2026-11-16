@@ -48,6 +48,7 @@ dmypy.json
 .idea/
 *.swp
 *.swo
+.zed/settings.json
 
 # Local scaffold trials (do not commit generated projects)
 /artifacts/
