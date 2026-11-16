@@ -9,9 +9,9 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-MLKIT_PATH = "pkgs/my_pkg_py"
+MLKIT_PATH = "pkgs/mlkit"
 PKGS_IGNORE = "/pkgs/\n"
-PKGS_IGNORE_TRACKED = "/pkgs/*\n!/pkgs/my_pkg_py\n"
+PKGS_IGNORE_TRACKED = "/pkgs/*\n!/pkgs/mlkit\n"
 SKIP_DIRS = {".git", ".venv", "__pycache__"}
 _BARE_KEY = re.compile(r"^[A-Za-z0-9_-]+$")
 _SSH_SCP = re.compile(r"^git@([^:]+):(.+)$")

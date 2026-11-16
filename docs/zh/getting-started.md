@@ -16,7 +16,7 @@ cd py-project-template
 仓库已经在本地、克隆时没带子模块：
 
 ```bash
-git submodule update --init my_pkg_py
+git submodule update --init mlkit
 git submodule update --init ai-lorebook
 ```
 
@@ -59,4 +59,4 @@ bash shell_script/init-check.sh
 
 !!! failure "子模块还没初始化"
 
-    `--mlkit` 需要 `git submodule update --init my_pkg_py`。`--lorebook` 需要 `git submodule update --init ai-lorebook`。
+    `--mlkit` 需要 `git submodule update --init mlkit`。`--lorebook` 需要 `git submodule update --init ai-lorebook`。

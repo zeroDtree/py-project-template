@@ -19,22 +19,22 @@ OVERLAY_PYPROJECT = ROOT / "overlay" / "pyproject.toml"
 class RewriteGitUrlTests(unittest.TestCase):
     def test_scp_ssh_to_https(self) -> None:
         self.assertEqual(
-            scaffold.rewrite_git_url("git@github.com:zeroDtree/my_pkg_py.git", to_https=True),
-            "https://github.com/zeroDtree/my_pkg_py.git",
+            scaffold.rewrite_git_url("git@github.com:zeroDtree/mlkit.git", to_https=True),
+            "https://github.com/zeroDtree/mlkit.git",
         )
 
     def test_ssh_scheme_to_https(self) -> None:
         self.assertEqual(
-            scaffold.rewrite_git_url("ssh://git@github.com/zeroDtree/my_pkg_py.git", to_https=True),
-            "https://github.com/zeroDtree/my_pkg_py.git",
+            scaffold.rewrite_git_url("ssh://git@github.com/zeroDtree/mlkit.git", to_https=True),
+            "https://github.com/zeroDtree/mlkit.git",
         )
 
     def test_https_unchanged(self) -> None:
-        url = "https://github.com/zeroDtree/my_pkg_py.git"
+        url = "https://github.com/zeroDtree/mlkit.git"
         self.assertEqual(scaffold.rewrite_git_url(url, to_https=True), url)
 
     def test_to_https_false_leaves_ssh(self) -> None:
-        url = "git@github.com:zeroDtree/my_pkg_py.git"
+        url = "git@github.com:zeroDtree/mlkit.git"
         self.assertEqual(scaffold.rewrite_git_url(url, to_https=False), url)
 
     def test_want_https_from_origin(self) -> None:
@@ -50,7 +50,7 @@ class TokenReplaceTests(unittest.TestCase):
             dest = Path(tmp)
             (dest / "src").mkdir()
             (dest / "src" / "pkg.py").write_text("import __PACKAGE_NAME__\n", encoding="utf-8")
-            pkgs = dest / "pkgs" / "my_pkg_py"
+            pkgs = dest / "pkgs" / "mlkit"
             pkgs.mkdir(parents=True)
             (pkgs / "keep.py").write_text("__PACKAGE_NAME__\n", encoding="utf-8")
             scaffold.replace_tokens(
@@ -93,7 +93,7 @@ class PyprojectTests(unittest.TestCase):
             self.assertIn("mlkit", data["project"]["dependencies"])
             self.assertEqual(data["project"]["dependencies"].count("mlkit"), 1)
             source = data["tool"]["uv"]["sources"]["mlkit"]
-            self.assertEqual(source["path"], "pkgs/my_pkg_py")
+            self.assertEqual(source["path"], "pkgs/mlkit")
             self.assertTrue(source["editable"])
             self.assertEqual(data["project"]["name"], "golden-exp")
             self.assertEqual(data["project"]["scripts"]["golden-exp"], "golden_exp.cli:main")
@@ -109,14 +109,14 @@ class PyprojectTests(unittest.TestCase):
             path = Path(tmp) / ".gitignore"
             path.write_text("# keep\n/pkgs/\n", encoding="utf-8")
             scaffold.unignore_mlkit_submodule(path)
-            self.assertEqual(path.read_text(encoding="utf-8"), "# keep\n/pkgs/*\n!/pkgs/my_pkg_py\n")
+            self.assertEqual(path.read_text(encoding="utf-8"), "# keep\n/pkgs/*\n!/pkgs/mlkit\n")
 
     def test_unignore_mlkit_submodule_accepts_missing_trailing_newline(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / ".gitignore"
             path.write_text("# keep\n/pkgs/", encoding="utf-8")
             scaffold.unignore_mlkit_submodule(path)
-            self.assertEqual(path.read_text(encoding="utf-8"), "# keep\n/pkgs/*\n!/pkgs/my_pkg_py\n")
+            self.assertEqual(path.read_text(encoding="utf-8"), "# keep\n/pkgs/*\n!/pkgs/mlkit\n")
 
     def test_unignore_mlkit_submodule_requires_pkgs_entry(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -142,17 +142,17 @@ class PyprojectTests(unittest.TestCase):
                 track_mlkit=True,
             )
             gitignore = (dest / ".gitignore").read_text(encoding="utf-8")
-            self.assertEqual(gitignore, "# keep\n/pkgs/*\n!/pkgs/my_pkg_py\n")
+            self.assertEqual(gitignore, "# keep\n/pkgs/*\n!/pkgs/mlkit\n")
             readme = (dest / "README.md").read_text(encoding="utf-8")
             self.assertIn("# golden-exp\n", readme)
-            self.assertIn("pkgs/my_pkg_py` submodule", readme)
+            self.assertIn("pkgs/mlkit` submodule", readme)
             self.assertIn("git submodule update --init", readme)
             self.assertNotIn("gitignored", readme)
             overlay_readme = (ROOT / "overlay" / "README.md").read_text(encoding="utf-8")
             self.assertIn("git clone --recurse-submodules", overlay_readme)
             self.assertNotIn("git+https://", readme)
             data = tomllib.loads((dest / "pyproject.toml").read_text(encoding="utf-8"))
-            self.assertEqual(data["tool"]["uv"]["sources"]["mlkit"]["path"], "pkgs/my_pkg_py")
+            self.assertEqual(data["tool"]["uv"]["sources"]["mlkit"]["path"], "pkgs/mlkit")
 
     def test_finalize_mlkit_without_tracking_keeps_local_clone_note(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

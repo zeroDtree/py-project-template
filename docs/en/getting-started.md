@@ -16,7 +16,7 @@ cd py-project-template
 If the clone is already on disk without submodules:
 
 ```bash
-git submodule update --init my_pkg_py
+git submodule update --init mlkit
 git submodule update --init ai-lorebook
 ```
 
@@ -59,4 +59,4 @@ Other flags are listed on the [init.sh](init.md) page:
 
 !!! failure "Submodule is missing"
 
-    `--mlkit` needs `git submodule update --init my_pkg_py`. `--lorebook` needs `git submodule update --init ai-lorebook`.
+    `--mlkit` needs `git submodule update --init mlkit`. `--lorebook` needs `git submodule update --init ai-lorebook`.

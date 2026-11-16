@@ -89,25 +89,25 @@ print("package override ok")
 PY
 
 echo "==> --mlkit pin and TOML"
-if submodule_ok my_pkg_py; then
+if submodule_ok mlkit; then
 	MLKIT="$TMP/golden-mlkit"
 	"$ROOT/init.sh" --dest "$MLKIT" --name golden-mlkit --mlkit --https --no-git \
 		2>"$TMP/mlkit-nogit.err"
 	grep -q "does not register" "$TMP/mlkit-nogit.err"
 	grep -q '^/pkgs/$' "$MLKIT/.gitignore"
-	if grep -q '!/pkgs/my_pkg_py' "$MLKIT/.gitignore"; then
-		echo "Error: --no-git un-ignored pkgs/my_pkg_py" >&2
+	if grep -q '!/pkgs/mlkit' "$MLKIT/.gitignore"; then
+		echo "Error: --no-git un-ignored pkgs/mlkit" >&2
 		exit 1
 	fi
 	grep -q "gitignored" "$MLKIT/README.md"
 	assert_no_tokens "$MLKIT" skip-pkgs
-	expected="$(git -C "$ROOT/my_pkg_py" rev-parse HEAD)"
-	actual="$(git -C "$MLKIT/pkgs/my_pkg_py" rev-parse HEAD)"
+	expected="$(git -C "$ROOT/mlkit" rev-parse HEAD)"
+	actual="$(git -C "$MLKIT/pkgs/mlkit" rev-parse HEAD)"
 	if [[ "$expected" != "$actual" ]]; then
 		echo "Error: mlkit pin mismatch: expected $expected got $actual" >&2
 		exit 1
 	fi
-	origin="$(git -C "$MLKIT/pkgs/my_pkg_py" remote get-url origin)"
+	origin="$(git -C "$MLKIT/pkgs/mlkit" remote get-url origin)"
 	case "$origin" in
 		https://*) ;;
 		*)
@@ -133,7 +133,7 @@ from pathlib import Path
 data = tomllib.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 assert "mlkit" in data["project"]["dependencies"], data["project"]["dependencies"]
 source = data["tool"]["uv"]["sources"]["mlkit"]
-assert source["path"] == "pkgs/my_pkg_py", source
+assert source["path"] == "pkgs/mlkit", source
 assert source["editable"] is True, source
 print("mlkit pyproject ok")
 PY
@@ -142,13 +142,13 @@ PY
 	GITML="$TMP/golden-mlkit-git"
 	"$ROOT/init.sh" --dest "$GITML" --name golden-mlkit-git --mlkit --https
 	assert_no_tokens "$GITML" skip-pkgs
-	expected="$(git -C "$ROOT/my_pkg_py" rev-parse HEAD)"
-	actual="$(git -C "$GITML/pkgs/my_pkg_py" rev-parse HEAD)"
+	expected="$(git -C "$ROOT/mlkit" rev-parse HEAD)"
+	actual="$(git -C "$GITML/pkgs/mlkit" rev-parse HEAD)"
 	if [[ "$expected" != "$actual" ]]; then
 		echo "Error: mlkit submodule pin mismatch: expected $expected got $actual" >&2
 		exit 1
 	fi
-	stage="$(git -C "$GITML" ls-files -s -- pkgs/my_pkg_py)"
+	stage="$(git -C "$GITML" ls-files -s -- pkgs/mlkit)"
 	mode="${stage%% *}"
 	rest="${stage#* }"
 	sha="${rest%% *}"
@@ -156,7 +156,7 @@ PY
 		echo "Error: expected gitlink 160000 $expected, got: $stage" >&2
 		exit 1
 	fi
-	recorded="$(git -C "$GITML" config --file "$GITML/.gitmodules" --get submodule.my_pkg_py.url)"
+	recorded="$(git -C "$GITML" config --file "$GITML/.gitmodules" --get submodule.mlkit.url)"
 	case "$recorded" in
 		https://*) ;;
 		*)
@@ -164,29 +164,29 @@ PY
 			exit 1
 			;;
 	esac
-	path_entry="$(git -C "$GITML" config --file "$GITML/.gitmodules" --get submodule.my_pkg_py.path)"
-	if [[ "$path_entry" != "pkgs/my_pkg_py" ]]; then
+	path_entry="$(git -C "$GITML" config --file "$GITML/.gitmodules" --get submodule.mlkit.path)"
+	if [[ "$path_entry" != "pkgs/mlkit" ]]; then
 		echo "Error: unexpected submodule path: $path_entry" >&2
 		exit 1
 	fi
-	origin="$(git -C "$GITML/pkgs/my_pkg_py" remote get-url origin)"
+	origin="$(git -C "$GITML/pkgs/mlkit" remote get-url origin)"
 	if [[ "$origin" != "$recorded" ]]; then
 		echo "Error: submodule origin $origin does not match .gitmodules $recorded" >&2
 		exit 1
 	fi
-	if git -C "$GITML" check-ignore -q -- pkgs/my_pkg_py; then
-		echo "Error: pkgs/my_pkg_py is ignored" >&2
+	if git -C "$GITML" check-ignore -q -- pkgs/mlkit; then
+		echo "Error: pkgs/mlkit is ignored" >&2
 		exit 1
 	fi
-	if [[ ! -f "$GITML/pkgs/my_pkg_py/.git" ]]; then
-		echo "Error: pkgs/my_pkg_py/.git is not a gitfile" >&2
+	if [[ ! -f "$GITML/pkgs/mlkit/.git" ]]; then
+		echo "Error: pkgs/mlkit/.git is not a gitfile" >&2
 		exit 1
 	fi
-	grep -q '!/pkgs/my_pkg_py' "$GITML/.gitignore"
+	grep -q '!/pkgs/mlkit' "$GITML/.gitignore"
 	grep -q -- '--recurse-submodules' "$GITML/README.md"
 else
 	if [[ "${CI:-}" == "true" ]]; then
-		echo "Error: my_pkg_py submodule is required in CI" >&2
+		echo "Error: mlkit submodule is required in CI" >&2
 		exit 1
 	fi
 	echo "skip --mlkit (submodule missing)"
