@@ -1,0 +1,30 @@
+include = [
+    "scaffold.py",
+    "tests/**/*.py",
+]
+
+# Template sources under overlay/ carry __TOKEN__ placeholders and are not
+# valid Python projects on their own; mlkit and ai-lorebook are submodules.
+extend-exclude = [
+    "ai-lorebook",
+    "mlkit",
+    "overlay",
+    "overlay_mlkit",
+]
+
+line-length = 120
+indent-width = 4
+
+target-version = "py312"
+
+[lint]
+select = ["E4", "E7", "E9", "F", "I"]
+ignore = ["E741"]
+
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+quote-style = "double"

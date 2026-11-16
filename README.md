@@ -42,6 +42,8 @@ This repository:
 ├── scaffold.py        # token replace, HTTPS URLs, pyproject TOML edit
 ├── pyproject.toml     # uv project for the template itself (Python 3.12)
 ├── uv.lock
+├── scripts/
+│   └── check-fix.sh   # ruff --fix + format, then ruff/ty/pytest verification
 ├── overlay/           # copied into the destination; placeholders are then replaced
 ├── overlay_mlkit/     # merged when --mlkit
 ├── mlkit/             # submodule; pinned mlkit source used by --mlkit
@@ -79,6 +81,17 @@ my-exp/
 Pass `--name` only. It is the distribution name and the console script. The import package replaces `-` and `.` in that name with `_`, so `my-exp` and `my.exp` both live in `src/my_exp`. Pass `--package` when the import name should differ, for example `--name acme-lab --package lab`.
 
 Optional later dirs: `legacy/` (historical code) and `pkgs/` (third-party / workspace packages); both are excluded from Ruff and ty if present. `--mlkit` registers the pinned `mlkit` checkout as a submodule at `pkgs/mlkit`. Other paths under `pkgs/` stay gitignored.
+
+## Quality checks
+
+From the repository root:
+
+```bash
+bash scripts/check-fix.sh          # ruff --fix + format, then verify
+bash scripts/check-fix.sh --check  # verify only, no writes
+```
+
+Both modes run `ruff check`, `ruff format --check`, `ty check`, and `pytest`. The fix mode first applies `ruff check --fix` and `ruff format`. `uv run` installs the `dev` group on demand, so no separate `uv sync` is needed.
 
 ## Documentation
 

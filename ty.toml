@@ -1,0 +1,14 @@
+[rules]
+import-not-found = "ignore"
+
+[src]
+include = [
+    "scaffold.py",
+    "tests/**/*.py",
+]
+exclude = [
+    "ai-lorebook/**",
+    "mlkit/**",
+    "overlay/**",
+    "overlay_mlkit/**",
+]

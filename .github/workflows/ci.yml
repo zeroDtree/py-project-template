@@ -46,6 +46,8 @@ jobs:
           prune-cache: true
           add-problem-matchers: true
       - run: uv sync
+      - name: Quality checks
+        run: bash scripts/check-fix.sh --check
       - name: Golden init
         run: bash tests/golden_init.sh
 
