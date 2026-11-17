@@ -32,5 +32,5 @@ def get_dataset(cfg: DictConfig) -> tuple[ToyDataset, ToyDataset, None]:
     return train_set, eval_set, None
 
 
-def get_collate_fn(_cfg: DictConfig) -> Callable[[list[Any]], Any]:
+def get_collate_fn(cfg: DictConfig) -> Callable[[list[Any]], Any]:
     return default_collate

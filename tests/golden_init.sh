@@ -116,6 +116,7 @@ if submodule_ok mlkit; then
 			;;
 	esac
 	[[ -f "$MLKIT/src/golden_mlkit/train.py" ]]
+	grep -q 'def get_collate_fn(cfg: DictConfig)' "$MLKIT/src/golden_mlkit/data.py"
 	[[ -f "$MLKIT/configs/hydra/model/default.yaml" ]]
 	[[ -f "$MLKIT/configs/hydra/dataset/default.yaml" ]]
 	[[ -f "$MLKIT/configs/hydra/wandb/default.yaml" ]]
