@@ -21,6 +21,7 @@ This syncs the `dev` group, runs `python -m __PACKAGE_NAME__.cli --help`, pytest
 | `MC_SKIP_UV_SYNC` | off | Set to `1` to skip `uv sync` in `run-python.sh` / `mc-run-python.sh`. Under Slurm (`SLURM_JOB_ID` set), defaults to `1`. |
 | `CUDA_VISIBLE_DEVICES` | unset | Comma-separated GPU ids; `mc-run-python.sh` is GPU-only and uses this (or `nvidia-smi -L`) for `--num_processes`. |
 | `SYNC_REMOTE` | (required for r2l) | Remote repo root for `file_sync/r2l.sh`, e.g. `user@host:/path/to/__PROJECT_NAME__`. |
+| `SYNC_RSH` | `ssh -o RemoteCommand=none -o RequestTTY=no` | rsync remote-shell for `file_sync/r2l.sh`; clears host `RemoteCommand`/`RequestTTY` so sync works with fish-login SSH hosts. |
 | `FROM_NAME` | `__PROJECT_NAME__` | Display name on completion email. SMTP settings themselves live in `env_email.sh`. |
 
 ## Run Python
@@ -52,7 +53,7 @@ bash shell_script/email.sh 0 -- __PACKAGE_NAME__.cli key=value
 
 ## File sync
 
-Pull files or directories from a remote checkout into this repo at the same relative path. Paths are listed in `file_sync/targets.txt` (one relative path per line; blank lines and `#` comments are ignored). Absolute paths and `..` are refused. Default is `rsync --dry-run`; pass `--run` or `-y` to copy. Local files missing on the remote are not deleted (`rsync` is not passed `--delete`).
+Pull files or directories from a remote checkout into this repo at the same relative path. Paths are listed in `file_sync/targets.txt` (one relative path per line; blank lines and `#` comments are ignored). Absolute paths and `..` are refused. Default is `rsync --dry-run`; pass `--run` or `-y` to copy. Local files missing on the remote are not deleted (`rsync` is not passed `--delete`). Hosts with `RemoteCommand` (e.g. fish login) are handled via the default SSH override; set `SYNC_RSH` if you need a custom remote shell.
 
 ```bash
 export SYNC_REMOTE=user@host:/path/to/__PROJECT_NAME__

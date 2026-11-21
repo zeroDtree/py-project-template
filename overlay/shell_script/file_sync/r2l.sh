@@ -10,6 +10,9 @@
 #
 # Env: SYNC_REMOTE — remote repo root. Example:
 #   SYNC_REMOTE=user@host:/path/to/__PROJECT_NAME__ bash shell_script/file_sync/r2l.sh
+# Env: SYNC_RSH — optional rsync remote-shell string (default clears
+#   RemoteCommand/RequestTTY so hosts with fish login still work):
+#   SYNC_RSH='ssh -o RemoteCommand=none -o RequestTTY=no'
 #
 # If no options are passed, the default behavior is equivalent to:
 #   bash shell_script/file_sync/r2l.sh   # rsync --dry-run
@@ -89,12 +92,15 @@ if [[ ${#targets[@]} -eq 0 ]]; then
 	exit 1
 fi
 
+# Override host RemoteCommand/RequestTTY so rsync can run its remote server.
+RSYNC_RSH="${SYNC_RSH:-ssh -o RemoteCommand=none -o RequestTTY=no}"
+
 if [[ "${DO_RUN}" -eq 1 ]]; then
 	mode="RUN"
-	rsync_flags=(-avzP)
+	rsync_flags=(-avzP -e "${RSYNC_RSH}")
 else
 	mode="DRY-RUN"
-	rsync_flags=(-avzP --dry-run)
+	rsync_flags=(-avzP -e "${RSYNC_RSH}" --dry-run)
 fi
 
 echo "===== file_sync r2l (${mode}) ====="
@@ -110,7 +116,7 @@ echo
 for relpath in "${targets[@]}"; do
 	src="${REMOTE_ROOT}/${relpath}"
 	dest="${PROJECT_ROOT}/${relpath}"
-	if ! listing="$(rsync --list-only "${src}")"; then
+	if ! listing="$(rsync --list-only -e "${RSYNC_RSH}" "${src}")"; then
 		echo "ERROR: cannot list source: ${src}" >&2
 		exit 1
 	fi
